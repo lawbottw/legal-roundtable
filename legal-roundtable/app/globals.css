@@ -117,6 +117,120 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+  }
+  
+  h1 {
+    @apply text-4xl font-bold mb-8;
+  }
+  
+  h2 {
+    @apply text-3xl font-semibold mb-6;
+  }
+  
+  h3 {
+    @apply text-2xl font-semibold mb-5;
+  }
+  
+  h4 {
+    @apply text-foreground/90 text-xl font-medium mb-5;
+  }
+  
+  h5 {
+    @apply text-foreground/90 text-lg font-medium mb-5;
+  }
+  
+  h6 {
+    @apply text-lg mb-5;
+  }
+  
+  p {
+    @apply text-lg leading-loose tracking-wide;
+  }
+  
+  span {
+    @apply text-base;
+  }
+  
+  ol {
+    @apply text-foreground/90 list-decimal list-outside mb-4 text-lg leading-loose pl-6;
+  }
+  
+  ul {
+    @apply text-foreground/90 list-disc list-outside mb-4 text-lg leading-loose pl-6;
+  }
+  
+  li {
+    @apply text-foreground/90 mb-2 text-lg leading-loose;
+  }
+  
+  /* 嵌套列表樣式 */
+  ul ul {
+    @apply mt-2 mb-2 pl-6;
+  }
+  
+  ol ol {
+    @apply mt-2 mb-2 pl-6;
+  }
+  
+  ul ol, ol ul {
+    @apply mt-2 mb-2 pl-6;
+  }
+  
+  /* 不同層級的列表符號 */
+  ul li ul li {
+    @apply list-[circle];
+  }
+  
+  ul li ul li ul li {
+    @apply list-[square];
+  }
+  
+  ol li ol li {
+    list-style-type: lower-alpha;
+  }
+  
+  ol li ol li ol li {
+    list-style-type: lower-roman;
+  }
+  
+  a {
+    @apply text-primary transition-colors;
+  }
+  
+  strong {
+    @apply font-semibold;
+  }
+  
+  em {
+    @apply italic;
+  }
+  
+  blockquote {
+    @apply border-l-4 border-primary pl-6 italic text-muted-foreground mb-6 bg-muted/30 py-4 rounded-r-lg;
+  }
+  
+  code {
+    @apply bg-muted px-2 py-1 rounded text-sm font-mono;
+  }
+  
+  table {
+    @apply border-collapse border border-border w-full my-4;
+  }
+  
+  thead {
+    @apply bg-muted;
+  }
+  
+  tr {
+    @apply border-b border-border;
+  }
+  
+  th {
+    @apply border border-border px-4 py-2 text-left font-medium;
+  }
+  
+  td {
+    @apply border border-border px-4 py-2 text-base;
   }
 }

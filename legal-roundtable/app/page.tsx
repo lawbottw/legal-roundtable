@@ -5,9 +5,54 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Users, BookOpen, Scale, Calendar, User, Quote, TrendingUp } from 'lucide-react';
 import Image from 'next/image';
 import Newsletter from '@/components/Newsletter';
-import { latestArticles, featuredWriters } from '../data/mock-article';
+import { getLatestArticles, getFeaturedArticles } from '@/services/ArticleService';
+import { getAuthorsByIds } from '@/services/AuthorService';
+import { categories } from '@/data/categories';
+import Link from 'next/link';
+import { Article } from '@/types/article';
+import { Author } from '@/types/author';
 
-export default function Home() {
+// 擴展 Article 類型以包含 author 資料（僅用於顯示）
+type ArticleWithAuthor = Article & { author: Author };
+
+// Server Component - fetch data directly
+async function getHomePageData() {
+	const [latestArticles, featuredArticles] = await Promise.all([
+		getLatestArticles(6),
+		getFeaturedArticles(8)
+	]);
+
+	// 收集所有唯一的 authorId
+	const authorIds = Array.from(
+		new Set([...latestArticles, ...featuredArticles].map(article => article.authorId))
+	);
+
+	// 批次獲取所有作者資料
+	const authorsMap = await getAuthorsByIds(authorIds);
+
+	// 將作者資料附加到文章上
+	const latestWithAuthors: ArticleWithAuthor[] = latestArticles.map(article => ({
+		...article,
+		author: authorsMap.get(article.authorId) || {
+			id: article.authorId,
+			name: '未知作者',
+			description: '',
+			avatar: ''
+		}
+	}));
+
+	// 從 authorsMap 中提取前 8 位作者
+	const featuredWriters = Array.from(authorsMap.values()).slice(0, 8);
+
+	return {
+		latestArticles: latestWithAuthors,
+		featuredWriters
+	};
+}
+
+export default async function Home() {
+	const { latestArticles, featuredWriters } = await getHomePageData();
+
 	return (
 		<div className="min-h-screen">
 			<main>
@@ -26,23 +71,27 @@ export default function Home() {
 							</div>
 
 							<div className="flex flex-col sm:flex-row gap-4 justify-center">
-								<Button size="lg" className="text-lg px-8 hover:scale-105 transition-transform">
-									閱讀最新文章
-									<ArrowRight className="ml-2 h-5 w-5" />
-								</Button>
-								<Button
-									size="lg"
-									variant="outline"
-									className="text-lg px-8 hover:scale-105 transition-transform"
-								>
-									認識作者群
-								</Button>
+								<Link href="/blog">
+									<Button size="lg" className="text-lg px-8 hover:scale-105 transition-transform">
+										閱讀最新文章
+										<ArrowRight className="ml-2 h-5 w-5" />
+									</Button>
+								</Link>
+								<Link href="/blog#writers">
+									<Button
+										size="lg"
+										variant="outline"
+										className="text-lg px-8 hover:scale-105 transition-transform"
+									>
+										認識作者群
+									</Button>
+								</Link>
 							</div>
 						</div>
 					</div>
 				</section>
 
-				{/* Latest Articles Section - Enhanced Design */}
+				{/* Latest Articles Section */}
 				<section id="articles" className="py-20">
 					<div className="container mx-auto px-4">
 						<div className="text-center mb-16">
@@ -57,113 +106,147 @@ export default function Home() {
 						</div>
 
 						{/* Featured Article (First Article) */}
-						<div className="mb-12">
-							<Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-primary/5 to-secondary/5">
-								<div className="md:flex">
-									<div className="md:w-1/3 bg-gradient-to-br from-primary/20 to-secondary/20 p-8 flex items-center justify-center">
-										<div className="text-center">
-											<Scale className="h-16 w-16 text-primary mx-auto mb-4" />
-											<Badge variant="default" className="text-sm">
-												精選文章
-											</Badge>
-										</div>
-									</div>
-									<div className="md:w-2/3 p-8">
-										<div className="flex items-center space-x-4 mb-4">
-											<Badge variant="secondary">{latestArticles[0].category}</Badge>
-											<span className="text-sm text-muted-foreground flex items-center">
-												<Calendar className="h-4 w-4 mr-1" />
-												{latestArticles[0].date}
-											</span>
-											<span className="text-sm text-muted-foreground">
-												{latestArticles[0].readTime}
-											</span>
-										</div>
-										<h3 className="text-2xl font-bold text-foreground mb-4 hover:text-primary transition-colors cursor-pointer">
-											{latestArticles[0].title}
-										</h3>
-										<p className="text-muted-foreground mb-6 leading-relaxed">
-											{latestArticles[0].excerpt}
-										</p>
-										<div className="flex items-center justify-between">
-											<div className="flex items-center space-x-3">
-												<div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-													<User className="h-5 w-5 text-primary" />
-												</div>
-												<div>
-													<p className="font-semibold text-foreground">
-														{latestArticles[0].author}
-													</p>
-													<p className="text-xs text-muted-foreground">
-														智慧財產權律師
-													</p>
-												</div>
+						{latestArticles.length > 0 && (
+							<div className="mb-12">
+								<Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-primary/5 to-secondary/5">
+									<div className="md:flex">
+										<div className="md:w-1/3 bg-gradient-to-br from-primary/20 to-secondary/20 p-8 flex items-center justify-center">
+											<div className="text-center">
+												<Scale className="h-16 w-16 text-primary mx-auto mb-4" />
+												<Badge variant="default" className="text-sm">
+													精選文章
+												</Badge>
 											</div>
-											<Button variant="ghost" className="hover:bg-primary/10">
-												閱讀全文
-												<ArrowRight className="ml-2 h-4 w-4" />
-											</Button>
+										</div>
+										<div className="md:w-2/3 p-8">
+											<div className="flex items-center space-x-4 mb-4">
+												<Badge variant="secondary">
+													{categories[latestArticles[0].category as keyof typeof categories]?.name || latestArticles[0].category}
+												</Badge>
+												<span className="text-sm text-muted-foreground flex items-center">
+													<Calendar className="h-4 w-4 mr-1" />
+													{new Date(latestArticles[0].updatedAt.seconds * 1000).toLocaleDateString('zh-TW')}
+												</span>
+												<span className="text-sm text-muted-foreground">
+													{latestArticles[0].readTime || 5} 分鐘閱讀
+												</span>
+											</div>
+											<Link href={`/blog/${latestArticles[0].id}`}>
+												<h3 className="text-2xl font-bold text-foreground mb-4 hover:text-primary transition-colors cursor-pointer">
+													{latestArticles[0].title}
+												</h3>
+											</Link>
+											<p className="text-muted-foreground mb-6 leading-relaxed">
+												{latestArticles[0].excerpt}
+											</p>
+											<div className="flex items-center justify-between">
+												<div className="flex items-center space-x-3">
+													<div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center overflow-hidden">
+														{latestArticles[0].author.avatar ? (
+															<Image
+																src={latestArticles[0].author.avatar}
+																alt={latestArticles[0].author.name}
+																width={40}
+																height={40}
+																className="object-cover"
+															/>
+														) : (
+															<User className="h-5 w-5 text-primary" />
+														)}
+													</div>
+													<div>
+														<p className="font-semibold text-foreground">
+															{latestArticles[0].author.name}
+														</p>
+														<p className="text-xs text-muted-foreground">
+															{latestArticles[0].author.title || '法律專家'}
+														</p>
+													</div>
+												</div>
+												<Link href={`/blog/${latestArticles[0].id}`}>
+													<Button variant="ghost" className="hover:bg-primary/10">
+														閱讀全文
+														<ArrowRight className="ml-2 h-4 w-4" />
+													</Button>
+												</Link>
+											</div>
 										</div>
 									</div>
-								</div>
-							</Card>
-						</div>
+								</Card>
+							</div>
+						)}
 
 						{/* Other Articles Grid */}
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-							{latestArticles.slice(1).map((article, index) => (
-								<Card
-									key={article.id}
-									className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-0 bg-muted/20 hover:bg-muted/40"
-								>
-									<CardHeader className="pb-4">
-										<div className="flex justify-between items-start mb-3">
-											<Badge variant="outline" className="bg-background">
-												{article.category}
-											</Badge>
-											<span className="text-sm text-muted-foreground">
-												{article.readTime}
-											</span>
-										</div>
-										<CardTitle className="line-clamp-2 group-hover:text-primary transition-colors leading-snug">
-											{article.title}
-										</CardTitle>
-									</CardHeader>
-									<CardContent>
-										<CardDescription className="line-clamp-3 mb-6 leading-relaxed">
-											{article.excerpt}
-										</CardDescription>
-										<div className="flex justify-between items-center text-sm">
-											<div className="flex items-center space-x-2 text-muted-foreground">
-												<div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center">
-													<User className="h-3 w-3 text-primary" />
+						{latestArticles.length > 1 && (
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+								{latestArticles.slice(1).map((article) => (
+									<Card
+										key={article.id}
+										className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-0 bg-muted/20 hover:bg-muted/40"
+									>
+										<CardHeader className="pb-4">
+											<div className="flex justify-between items-start mb-3">
+												<Badge variant="outline" className="bg-background">
+													{categories[article.category as keyof typeof categories]?.name || article.category}
+												</Badge>
+												<span className="text-sm text-muted-foreground">
+													{article.readTime || 5} 分鐘閱讀
+												</span>
+											</div>
+											<Link href={`/blog/${article.id}`}>
+												<CardTitle className="line-clamp-2 group-hover:text-primary transition-colors leading-snug">
+													{article.title}
+												</CardTitle>
+											</Link>
+										</CardHeader>
+										<CardContent>
+											<CardDescription className="line-clamp-3 mb-6 leading-relaxed">
+												{article.excerpt}
+											</CardDescription>
+											<div className="flex justify-between items-center text-sm">
+												<div className="flex items-center space-x-2 text-muted-foreground">
+													<div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center overflow-hidden">
+														{article.author.avatar ? (
+															<Image
+																src={article.author.avatar}
+																alt={article.author.name}
+																width={24}
+																height={24}
+																className="object-cover"
+															/>
+														) : (
+															<User className="h-3 w-3 text-primary" />
+														)}
+													</div>
+													<span>{article.author.name}</span>
 												</div>
-												<span>{article.author}</span>
+												<div className="flex items-center space-x-1 text-muted-foreground">
+													<Calendar className="h-3 w-3" />
+													<span>{new Date(article.updatedAt.seconds * 1000).toLocaleDateString('zh-TW')}</span>
+												</div>
 											</div>
-											<div className="flex items-center space-x-1 text-muted-foreground">
-												<Calendar className="h-3 w-3" />
-												<span>{article.date}</span>
-											</div>
-										</div>
-									</CardContent>
-								</Card>
-							))}
-						</div>
+										</CardContent>
+									</Card>
+								))}
+							</div>
+						)}
 
 						<div className="text-center">
-							<Button
-								variant="outline"
-								size="lg"
-								className="hover:scale-105 transition-transform"
-							>
-								查看所有文章
-								<BookOpen className="ml-2 h-5 w-5" />
-							</Button>
+							<Link href="/blog">
+								<Button
+									variant="outline"
+									size="lg"
+									className="hover:scale-105 transition-transform"
+								>
+									查看所有文章
+									<BookOpen className="ml-2 h-5 w-5" />
+								</Button>
+							</Link>
 						</div>
 					</div>
 				</section>
 
-				{/* Writers Section - Enhanced for 2-3 Writers */}
+				{/* Writers Section - Dynamic Grid */}
 				<section id="writers" className="py-20 bg-muted/30">
 					<div className="container mx-auto px-4">
 						<div className="text-center mb-16">
@@ -177,14 +260,24 @@ export default function Home() {
 							</p>
 						</div>
 
-						<div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-							{featuredWriters.map((writer, index) => (
-								<div key={index} className="group">
-									<div className="bg-background rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-muted/20 hover:border-primary/20">
+						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
+							{featuredWriters.map((writer) => (
+								<div key={writer.id} className="group">
+									<div className="bg-background rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-muted/20 hover:border-primary/20 h-full">
 										{/* Profile Image */}
 										<div className="relative mb-6">
 											<div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
-												<User className="h-10 w-10 text-primary" />
+												{writer.avatar ? (
+													<Image
+														src={writer.avatar}
+														alt={writer.name}
+														width={80}
+														height={80}
+														className="rounded-full object-cover"
+													/>
+												) : (
+													<User className="h-10 w-10 text-primary" />
+												)}
 											</div>
 										</div>
 
@@ -194,18 +287,16 @@ export default function Home() {
 												{writer.name}
 											</h3>
 											<p className="text-primary font-medium mb-3">
-												{writer.title}
+												{writer.title || '法律專家'}
 											</p>
-											<p className="text-sm text-muted-foreground mb-4">
-												{writer.expertise}
-											</p>
+											
 										</div>
 
-										{/* Quote */}
+										{/* Quote or Description */}
 										<div className="relative">
 											<Quote className="h-6 w-6 text-primary/30 mb-2" />
-											<p className="text-sm text-muted-foreground italic leading-relaxed">
-												{writer.quote}
+											<p className="text-sm text-muted-foreground italic leading-relaxed line-clamp-4">
+												{writer.description || '致力於分享法律專業知識與實務經驗'}
 											</p>
 										</div>
 									</div>
@@ -215,7 +306,7 @@ export default function Home() {
 					</div>
 				</section>
 
-				{/* About Section - New Design with Image */}
+				{/* About Section */}
 				<section id="about" className="py-20">
 					<div className="container mx-auto px-4">
 						<div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center max-w-6xl mx-auto">

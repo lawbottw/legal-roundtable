@@ -11,8 +11,7 @@ export const Header = () => {
         <div className="flex items-center space-x-2">
           <Scale className="h-8 w-8 text-primary" />
           <div>
-            <h1 className="text-xl font-bold text-foreground">法律圓桌</h1>
-            <p className="text-xs text-muted-foreground">Legal Round Table</p>
+            <p className="text-xl font-bold text-foreground leading-none">法律圓桌</p>
           </div>
         </div>
         

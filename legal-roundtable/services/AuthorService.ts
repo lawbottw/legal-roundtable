@@ -1,18 +1,6 @@
 import { db } from "@/lib/firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-
-// Author 介面定義
-export interface Author {
-  id: string;
-  name: string;
-  description: string;
-}
-
-// 更新 Author 時的資料類型（id 為只讀，不可更新）
-export interface UpdateAuthorData {
-  name?: string;
-  description?: string;
-}
+import { doc, getDoc, updateDoc, getDocs, collection, query, where } from "firebase/firestore";
+import { Author } from "@/types/author";
 
 export const getAuthor = async (authorId: string): Promise<Author | null> => {
   try {
@@ -25,6 +13,8 @@ export const getAuthor = async (authorId: string): Promise<Author | null> => {
         id: authorSnap.id,
         name: data.name,
         description: data.description,
+        avatar: data.avatar,
+        title: data.title
       } as Author;
     } else {
       console.log("找不到該作者");
@@ -36,9 +26,37 @@ export const getAuthor = async (authorId: string): Promise<Author | null> => {
   }
 };
 
+// 新增：批次獲取多個作者資料
+export const getAuthorsByIds = async (authorIds: string[]): Promise<Map<string, Author>> => {
+  const authorMap = new Map<string, Author>();
+  
+  if (authorIds.length === 0) return authorMap;
+  
+  try {
+    // 使用 Set 去除重複的 ID
+    const uniqueIds = Array.from(new Set(authorIds));
+    
+    // 批次獲取所有作者
+    const authorPromises = uniqueIds.map(id => getAuthor(id));
+    const authors = await Promise.all(authorPromises);
+    
+    // 建立 Map
+    authors.forEach(author => {
+      if (author) {
+        authorMap.set(author.id, author);
+      }
+    });
+    
+    return authorMap;
+  } catch (error) {
+    console.error("批次取得作者資料時發生錯誤:", error);
+    throw new Error("無法批次取得作者資料");
+  }
+};
+
 export const updateAuthor = async (
   authorId: string, 
-  updateData: UpdateAuthorData
+  updateData: Partial<Author>
 ): Promise<void> => {
   try {
     // 過濾掉 undefined 的值
