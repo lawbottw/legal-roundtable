@@ -16,11 +16,11 @@ const notoSansTC = Noto_Sans_TC({
 export const metadata: Metadata = {
   title: "法律圓桌 - 台灣法律專業知識與實務分析",
   description: "法律圓桌是一個專為法律工作者打造的專業平台，撰文者包含律師、法務、法律科技從業人員等，匯集實務見解、判決分析與法律新知，讓專業知識更可近、更可懂。",
-  keywords: ["法律問題"],
-  authors: [{ name: "" }],
-  creator: "",
-  publisher: "",
-  applicationName: "",
+  keywords: ["法律問題", "法普文章", '裁判分析', '實務見解', '交流平台'],
+  authors: [{ name: "草莓乖乖" }, { name: "法律圓桌" }],
+  creator: "法律圓桌",
+  publisher: "法律圓桌",
+  applicationName: "法律圓桌",
   generator: "Next.js",
   referrer: "origin-when-cross-origin",
   robots: {
@@ -46,31 +46,27 @@ export const metadata: Metadata = {
     shortcut: "/favicon.ico"
   },
   openGraph: {
-    title: "",
-    description: "",
-    url: "",
-    siteName: "",
+    title: "法律圓桌 - 台灣法律專業知識與實務分析",
+    description: "法律圓桌是一個專為法律工作者打造的專業平台，撰文者包含律師、法務、法律科技從業人員等，匯集實務見解、判決分析與法律新知，讓專業知識更可近、更可懂。",
+    url: "https://lawtable.org",
+    siteName: "法律圓桌",
     locale: "zh_TW",
     type: "website",
     images: [
       {
-        url: "",
+        url: "https://lawtable.org/img/logo.png",
         width: 1200,
         height: 630,
-        alt: "",
+        alt: "法律圓桌 - 台灣法律專業知識與實務分析",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "",
-    description: "",
-    images: [""],
-  },
-  alternates: {
-    canonical: "",
-  },
-  category: "",
+    title: "法律圓桌 - 台灣法律專業知識與實務分析",
+    description: "法律圓桌是一個專為法律工作者打造的專業平台，撰文者包含律師、法務、法律科技從業人員等，匯集實務見解、判決分析與法律新知，讓專業知識更可近、更可懂。",
+    images: ["https://lawtable.org/img/logo.png"],
+  }
 };
 
 export default function RootLayout({
@@ -83,18 +79,18 @@ export default function RootLayout({
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://easy-law.net/#organization",
-        name: "",
-        alternateName: [""],
-        url: "https://easy-law.net/",
+        "@id": "https://lawtable.org/#organization",
+        name: "法律圓桌 - 台灣法律專業知識與實務分析",
+        alternateName: ["法律論壇"],
+        url: "https://lawtable.org/",
         logo: {
           "@type": "ImageObject",
-          url: "https://easy-law.net/logo.png",
+          url: "https://lawtable.org/logo.png",
           width: 512,
           height: 512
         },
-        description: "",
-        foundingDate: "2024",
+        description: "法律圓桌是一個專為法律工作者打造的專業平台，撰文者包含律師、法務、法律科技從業人員等，匯集實務見解、判決分析與法律新知，讓專業知識更可近、更可懂。",
+        foundingDate: "2025",
         contactPoint: {
           "@type": "ContactPoint",
           contactType: "customer service",
@@ -105,103 +101,40 @@ export default function RootLayout({
           name: "台灣"
         }
       },
-      // {
-      //   "@type": "Service",
-      //   "@id": "https://easy-law.net/#service",
-      //   name: "",
-      //   description: "",
-      //   provider: {
-      //     "@id": "https://easy-law.net/#organization"
-      //   },
-      //   serviceType: "法律諮詢",
-      //   category: ["法律服務", "AI諮詢", "線上法律諮詢"],
-      //   audience: {
-      //     "@type": "Audience",
-      //     name: "一般民眾及法律工作者"
-      //   },
-      //   areaServed: {
-      //     "@type": "Country",
-      //     name: "台灣"
-      //   },
-      //   availableChannel: {
-      //     "@type": "ServiceChannel",
-      //     name: "線上平台",
-      //     serviceUrl: "https://easy-law.net/c/"
-      //   },
-      //   offers: {
-      //     "@type": "Offer",
-      //     name: "免費AI法律諮詢",
-      //     description: "完全免費的AI法律諮詢服務，無需註冊",
-      //     price: "0",
-      //     priceCurrency: "TWD",
-      //     availability: "https://schema.org/InStock",
-      //     validFrom: "2024-01-01"
-      //   },
-      //   hasOfferCatalog: {
-      //     "@type": "OfferCatalog",
-      //     name: "法律諮詢服務項目",
-      //     itemListElement: [
-      //       {
-      //         "@type": "Offer",
-      //         itemOffered: {
-      //           "@type": "Service",
-      //           name: "民事法律諮詢",
-      //           description: "民事糾紛、契約問題、財產權等相關法律諮詢"
-      //         }
-      //       },
-      //       {
-      //         "@type": "Offer", 
-      //         itemOffered: {
-      //           "@type": "Service",
-      //           name: "刑事法律諮詢",
-      //           description: "刑事案件、告訴告發、刑責認定等相關法律諮詢"
-      //         }
-      //       },
-      //       {
-      //         "@type": "Offer",
-      //         itemOffered: {
-      //           "@type": "Service", 
-      //           name: "勞動法律諮詢",
-      //           description: "勞資糾紛、職場權益、勞動契約等相關法律諮詢"
-      //         }
-      //       }
-      //     ]
-      //   }
-      // },
-      // {
-      //   "@type": "WebSite",
-      //   "@id": "https://easy-law.net/#website",
-      //   url: "https://easy-law.net/",
-      //   name: "EasyLaw 律點通",
-      //   alternateName: "律點通",
-      //   description: "台灣免費AI法律諮詢",
-      //   publisher: {
-      //     "@id": "https://easy-law.net/#organization"
-      //   },
-      //   inLanguage: "zh-TW",
-      //   potentialAction: {
-      //     "@type": "SearchAction",
-      //     target: "https://easy-law.net/c?textInput={search_term_string}",
-      //     "query-input": "required name=search_term_string"
-      //   }
-      // },
-      // {
-      //   "@type": "WebPage",
-      //   "@id": "https://easy-law.net/#webpage",
-      //   url: "https://easy-law.net",
-      //   name: "台灣免費AI法律諮詢 | EasyLaw 律點通",
-      //   description: "EasyLaw 律點通是台灣領先的AI法律諮詢平台，提供24/7免費諮詢服務。基於2000萬筆判決資料的數據，為您解答各種法律問題。",
-      //   isPartOf: {
-      //     "@id": "https://easy-law.net/#website"
-      //   },
-      //   about: {
-      //     "@id": "https://easy-law.net/#organization"
-      //   },
-      //   mainEntity: {
-      //     "@id": "https://easy-law.net/#service"
-      //   },
-      //   inLanguage: "zh-TW"
-      // }
+      {
+        "@type": "WebSite",
+        "@id": "https://lawtable.org/#website",
+        url: "https://lawtable.org/",
+        name: "法律圓桌 - 台灣法律專業知識與實務分析",
+        alternateName: "法律圓桌",
+        description: "法律圓桌是一個專為法律工作者打造的專業平台，撰文者包含律師、法務、法律科技從業人員等，匯集實務見解、判決分析與法律新知，讓專業知識更可近、更可懂。",
+        publisher: {
+          "@id": "https://lawtable.org/#organization"
+        },
+        inLanguage: "zh-TW",
+        potentialAction: {
+          "@type": "SearchAction",
+          target: "https://lawtable.org/c?textInput={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://lawtable.org/#webpage",
+        url: "https://lawtable.org",
+        name: "法律圓桌 - 台灣法律專業知識與實務分析",
+        description: "法律圓桌是一個專為法律工作者打造的專業平台，撰文者包含律師、法務、法律科技從業人員等，匯集實務見解、判決分析與法律新知，讓專業知識更可近、更可懂。",
+        isPartOf: {
+          "@id": "https://lawtable.org/#website"
+        },
+        about: {
+          "@id": "https://lawtable.org/#organization"
+        },
+        mainEntity: {
+          "@id": "https://lawtable.org/#service"
+        },
+        inLanguage: "zh-TW"
+      }
     ]
   };
 

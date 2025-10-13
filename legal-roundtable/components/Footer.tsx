@@ -35,16 +35,16 @@ export const Footer = () => {
           </div>
           
           <div>
-            <h4 className="font-semibold mb-4 text-foreground">作者資源</h4>
+            <h4 className="font-semibold mb-4 text-foreground">友站連結</h4>
             <div className="flex flex-col gap-3">
-              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                投稿指南
+              <Link href="https://www.lawbot.tw" className="text-muted-foreground hover:text-primary transition-colors text-sm" target="_blank">
+                Lawbot AI
               </Link>
-              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                編輯政策
+              <Link href="https://www.edu.lawbot.tw" className="text-muted-foreground hover:text-primary transition-colors text-sm" target="_blank">
+                Lawbot 教育版
               </Link>
-              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                作者介紹
+              <Link href="https://lawtable.org" className="text-muted-foreground hover:text-primary transition-colors text-sm" target="_blank">
+                律點通 - 法律知識平台
               </Link>
             </div>
           </div>

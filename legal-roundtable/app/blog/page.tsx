@@ -1,8 +1,7 @@
 'use client'
 import { useState, useEffect } from "react";
-import { Calendar, User, ArrowRight, BookOpen, Star, Filter, X, Loader2 } from "lucide-react";
+import { Calendar, BookOpen, User, ArrowRight, Star, Filter, X, Loader2, ChevronDown } from "lucide-react";
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -26,6 +25,7 @@ export default function BlogPage() {
   const [featuredAuthors, setFeaturedAuthors] = useState<AuthorWithCount[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isAuthorDropdownOpen, setIsAuthorDropdownOpen] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -92,12 +92,6 @@ export default function BlogPage() {
   const featuredArticlesList = filteredArticles.filter(article => article.featured);
   const regularArticles = filteredArticles.filter(article => !article.featured);
 
-  const handleResetFilters = () => {
-    setSelectedCategory("全部");
-    setSelectedAuthor("全部");
-    setIsFilterOpen(false);
-  };
-
   const activeFiltersCount = (selectedCategory !== "全部" ? 1 : 0) + (selectedAuthor !== "全部" ? 1 : 0);
 
   if (loading) {
@@ -115,22 +109,18 @@ export default function BlogPage() {
     <div className="space-y-6">
       <div className="space-y-3">
         <div className="flex items-center gap-2 mb-2">
-          <BookOpen className="h-4 w-4 text-primary" />
           <label className="text-sm font-semibold text-foreground">文章分類</label>
         </div>
         <div className="grid grid-cols-2 gap-2">
           {categoryOptions.map((category) => (
-            <button
+            <Button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                selectedCategory === category
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'bg-muted hover:bg-muted/80 text-foreground'
-              }`}
+              variant={selectedCategory === category ? "default" : "secondary"}
+              className="w-full"
             >
               {category}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -140,30 +130,19 @@ export default function BlogPage() {
           <User className="h-4 w-4 text-primary" />
           <label className="text-sm font-semibold text-foreground">作者篩選</label>
         </div>
-        <Select value={selectedAuthor} onValueChange={setSelectedAuthor}>
-          <SelectTrigger className="w-full h-11">
-            <SelectValue placeholder="選擇作者" />
-          </SelectTrigger>
-          <SelectContent>
-            {authorOptions.map((author) => (
-              <SelectItem key={author} value={author}>
-                {author}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="grid grid-cols-2 gap-2">
+          {authorOptions.map((author) => (
+            <Button
+              key={author}
+              onClick={() => setSelectedAuthor(author)}
+              variant={selectedAuthor === author ? "default" : "secondary"}
+              className="w-full"
+            >
+              {author}
+            </Button>
+          ))}
+        </div>
       </div>
-
-      {activeFiltersCount > 0 && (
-        <Button 
-          variant="outline" 
-          className="w-full h-11"
-          onClick={handleResetFilters}
-        >
-          <X className="h-4 w-4 mr-2" />
-          清除所有篩選
-        </Button>
-      )}
     </div>
   );
 
@@ -197,54 +176,70 @@ export default function BlogPage() {
 
       <section className="bg-background/95 backdrop-blur-sm border-b border-border shadow-sm">
         <div className="container mx-auto px-4 max-w-6xl">
-          {/* Desktop Filter - 橫向標籤式 */}
+          {/* Desktop Filter - 分類和作者在同一行 */}
           <div className="hidden lg:block py-6">
-            <div className="flex items-center justify-between gap-6 mb-4">
-              <div className="flex items-center gap-3">
-                <BookOpen className="h-5 w-5 text-primary" />
-                <span className="text-sm font-semibold text-foreground">分類</span>
+            <div className="flex items-center justify-between gap-4">
+              {/* 分類篩選 */}
+              <div className="flex items-center gap-2 flex-wrap flex-1">
+                {categoryOptions.map((category) => (
+                  <Button
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    variant={selectedCategory === category ? "default" : "secondary"}
+                    size="sm"
+                  >
+                    {category}
+                  </Button>
+                ))}
               </div>
-              <div className="flex items-center gap-3">
-                <User className="h-4 w-4 text-muted-foreground" />
-                <Select value={selectedAuthor} onValueChange={setSelectedAuthor}>
-                  <SelectTrigger className="w-48 h-9">
-                    <SelectValue placeholder="所有作者" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {authorOptions.map((author) => (
-                      <SelectItem key={author} value={author}>
-                        {author}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+
+              {/* 作者下拉選單 */}
+              <div className="relative flex-shrink-0">
+                <Button
+                  onClick={() => setIsAuthorDropdownOpen(!isAuthorDropdownOpen)}
+                  variant={selectedAuthor !== "全部" ? "default" : "outline"}
+                  className="min-w-[140px] justify-between"
+                >
+                  <span className="truncate">{selectedAuthor}</span>
+                  <ChevronDown className={`h-4 w-4 flex-shrink-0 transition-transform ${isAuthorDropdownOpen ? 'rotate-180' : ''}`} />
+                </Button>
+                {isAuthorDropdownOpen && (
+                  <div className="absolute top-full mt-2 right-0 w-64 bg-card border border-border rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
+                    {authorOptions.map((author) => {
+                      const authorData = featuredAuthors.find(a => a.name === author);
+                      return (
+                        <Button
+                          key={author}
+                          onClick={() => {
+                            setSelectedAuthor(author);
+                            setIsAuthorDropdownOpen(false);
+                          }}
+                          variant="ghost"
+                          className="w-full justify-start h-auto py-3 px-4"
+                        >
+                          {authorData && author !== "全部" ? (
+                            <>
+                              <Avatar className="w-8 h-8 flex-shrink-0 mr-3">
+                                <AvatarImage src={authorData.avatar} alt={author} />
+                                <AvatarFallback className="text-xs bg-muted">{author[0]}</AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0 text-left">
+                                <div className="font-medium text-sm text-foreground">{author}</div>
+                                <div className="text-xs text-muted-foreground">{authorData.articlesCount} 篇文章</div>
+                              </div>
+                            </>
+                          ) : (
+                            <span className="font-medium text-sm text-foreground pl-2">{author}</span>
+                          )}
+                          {selectedAuthor === author && (
+                            <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 ml-2" />
+                          )}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-            </div>
-            
-            <div className="flex items-center gap-2 flex-wrap">
-              {categoryOptions.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
-                    selectedCategory === category
-                      ? 'bg-primary text-primary-foreground shadow-md'
-                      : 'bg-muted hover:bg-muted/70 text-foreground hover:shadow-sm'
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
-              
-              {activeFiltersCount > 0 && (
-                <button
-                  onClick={handleResetFilters}
-                  className="ml-2 px-4 py-2 rounded-full text-sm font-medium bg-background border border-border hover:bg-muted transition-all flex items-center gap-1"
-                >
-                  <X className="h-3.5 w-3.5" />
-                  清除
-                </button>
-              )}
             </div>
           </div>
 
@@ -287,24 +282,28 @@ export default function BlogPage() {
                   <Badge variant="secondary" className="gap-1.5 pl-3 pr-2 py-1.5 whitespace-nowrap">
                     <BookOpen className="h-3 w-3" />
                     {selectedCategory}
-                    <button
+                    <Button
                       onClick={() => setSelectedCategory("全部")}
-                      className="ml-1 hover:bg-background/50 rounded-full p-0.5"
+                      variant="ghost"
+                      size="icon"
+                      className="ml-1 h-4 w-4 p-0 hover:bg-background/50"
                     >
                       <X className="h-3 w-3" />
-                    </button>
+                    </Button>
                   </Badge>
                 )}
                 {selectedAuthor !== "全部" && (
                   <Badge variant="secondary" className="gap-1.5 pl-3 pr-2 py-1.5 whitespace-nowrap">
                     <User className="h-3 w-3" />
                     {selectedAuthor}
-                    <button
+                    <Button
                       onClick={() => setSelectedAuthor("全部")}
-                      className="ml-1 hover:bg-background/50 rounded-full p-0.5"
+                      variant="ghost"
+                      size="icon"
+                      className="ml-1 h-4 w-4 p-0 hover:bg-background/50"
                     >
                       <X className="h-3 w-3" />
-                    </button>
+                    </Button>
                   </Badge>
                 )}
               </div>
@@ -326,32 +325,30 @@ export default function BlogPage() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {featuredAuthors.map((author) => (
-                <div 
-                  key={author.id} 
-                  className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer hover:border-primary/50 group"
-                  onClick={() => setSelectedAuthor(author.name)}
-                >
-                  <div className="flex flex-col items-center text-center space-y-4">
-                    <Avatar className="w-16 h-16 border-2 border-border group-hover:border-primary transition-colors">
-                      <AvatarImage src={author.avatar} alt={author.name} />
-                      <AvatarFallback className="bg-muted">{author.name[0]}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-foreground mb-1 group-hover:text-primary transition-colors">
-                        {author.name}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mb-2">{author.title || '法律專家'}</p>
-                      <Badge variant="secondary" className="text-xs mb-3">
-                        {author.articlesCount} 篇文章
-                      </Badge>
-                      {author.description && (
-                        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
-                          {author.description}
-                        </p>
-                      )}
+                <Link key={author.id} href={`/author/${author.id}`}>
+                  <div className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer hover:border-primary/50 group">
+                    <div className="flex flex-col items-center text-center space-y-4">
+                      <Avatar className="w-16 h-16 border-2 border-border group-hover:border-primary transition-colors">
+                        <AvatarImage src={author.avatar} alt={author.name} />
+                        <AvatarFallback className="bg-muted">{author.name[0]}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-foreground mb-1 group-hover:text-primary transition-colors">
+                          {author.name}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-2">{author.title || '法律專家'}</p>
+                        <Badge variant="secondary" className="text-xs mb-3">
+                          {author.articlesCount} 篇文章
+                        </Badge>
+                        {author.description && (
+                          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
+                            {author.description}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -484,8 +481,14 @@ export default function BlogPage() {
               <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium text-foreground mb-2">找不到相關文章</h3>
               <p className="text-muted-foreground mb-4">請嘗試調整篩選條件</p>
-              <Button variant="outline" onClick={handleResetFilters}>
-                清除所有篩選
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setSelectedCategory("全部");
+                  setSelectedAuthor("全部");
+                }}
+              >
+                重設篩選
               </Button>
             </div>
           )}

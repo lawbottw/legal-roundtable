@@ -31,8 +31,6 @@ const generateHeadingId = (text: string) => {
 export default async function BlogPostPage({ params }: { params: Promise<PageParams> }) {
   const resolvedParams = await params;
 
-  console.log('[Server] BlogPostPage:', resolvedParams);
-
   // 檢查分類是否存在
   const categoryKey = resolvedParams.category as CategoryKey;
   const category = categories[categoryKey];
@@ -68,7 +66,7 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
   }
 
   // 基礎 URL
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://easy-law.net';
+  const baseUrl = 'https://lawtable.org';
   const articleUrl = `${baseUrl}/blog/${resolvedParams.category}/${resolvedParams.id}`;
 
   // 提取 H1 標題

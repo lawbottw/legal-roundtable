@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import { AnimatePresence } from "framer-motion";
 import { Author } from "@/types/author";
 import { Article } from "@/types/article";
@@ -125,22 +126,23 @@ export default function AuthorDetailPage() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Author Info Sidebar */}
           <div className="lg:col-span-1">
-            <div className="sticky top-8 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
-              {/* Author Image - Full Width */}
+            <div className="top-8 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm">
               <div className="w-full aspect-square relative border-b border-border/50">
-                <img 
-                  src={author.avatar} 
+                <Image 
+                  src={author.avatar || '/img/default.png'} 
                   alt={author.name}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover rounded-lg"
+                  sizes="(max-width: 1024px) 100vw, 33vw"
+                  priority
                 />
               </div>
               
               <div className="p-6">
                 {/* Name with sparkle */}
                 <div className="text-center mb-4">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Sparkles className="w-5 h-5 text-accent" />
-                    <h1 className="text-3xl font-bold">
+                  <div className="flex items-center justify-center gap-2">
+                    <h1 className="">
                       {author.name}
                     </h1>
                   </div>
@@ -187,8 +189,8 @@ export default function AuthorDetailPage() {
 
           {/* Articles List */}
           <div className="lg:col-span-2">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold mb-2">發表文章</h2>
+            <div className="mb-6 px-6">
+              <h2 className="font-bold mb-2">發表文章</h2>
               <p className="text-muted-foreground">
                 共 {articles.length} 篇文章
               </p>
@@ -210,10 +212,10 @@ export default function AuthorDetailPage() {
                     >
                       <div className="flex items-start justify-between gap-4 mb-4">
                         <div className="flex-1">
-                          <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                          <h3 className="mb-2 group-hover:text-primary transition-colors line-clamp-2">
                             {article.title}
                           </h3>
-                          <p className="text-sm text-muted-foreground line-clamp-2">
+                          <p className="line-clamp-2">
                             {article.excerpt}
                           </p>
                         </div>

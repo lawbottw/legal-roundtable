@@ -4,9 +4,8 @@ import { useEffect, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Author } from '@/types/author';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { User, Sparkles, Loader2, ArrowRight } from 'lucide-react';
+import { User, Loader2, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function AuthorsPage() {
@@ -42,6 +41,7 @@ export default function AuthorsPage() {
   };
 
   const getInitials = (name: string) => {
+    if (!name || typeof name !== 'string') return '';
     return name
       .split(' ')
       .map((n) => n[0])
@@ -76,66 +76,68 @@ export default function AuthorsPage() {
 
         {/* 作者列表 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {authors.map((author) => (
-            <article
-              key={author.id}
-              className="flex flex-col border border-border rounded-lg overflow-hidden hover:border-foreground/20 hover:shadow-lg transition-all duration-200 cursor-pointer"
-              onClick={() => handleCardClick(author.id)}
-            >
-              {/* 作者圖片 - 較小的比例 */}
-              <div className="w-full aspect-[4/3] bg-accent/5 relative overflow-hidden border-b border-border">
-                {author.avatar ? (
-                  <img
-                    src={author.avatar}
-                    alt={author.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-accent/10">
-                    <span className="text-5xl font-bold text-foreground/20">
-                      {getInitials(author.name)}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* 作者資訊 - 使用 flex-1 讓內容區域填充空間 */}
-              <div className="flex flex-col flex-1 p-6">
-                <div className="flex-1 space-y-3">
-                  <div className="space-y-1">
-                    <h2 className="text-xl font-bold text-foreground">
-                      {author.name}
-                    </h2>
-                    
-                    {author.title && (
-                      <p className="text-sm text-muted-foreground font-medium">
-                        {author.title}
-                      </p>
-                    )}
-                  </div>
-
-                  <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
-                    {author.description}
-                  </p>
+          {authors
+            .filter((author) => !!author.name)
+            .map((author) => (
+              <article
+                key={author.id}
+                className="flex flex-col border border-border rounded-lg overflow-hidden hover:border-foreground/20 hover:shadow-lg transition-all duration-200 cursor-pointer"
+                onClick={() => handleCardClick(author.id)}
+              >
+                {/* 作者圖片 - 較小的比例 */}
+                <div className="w-full aspect-[4/3] bg-accent/5 relative overflow-hidden border-b border-border">
+                  {author.avatar ? (
+                    <img
+                      src={author.avatar}
+                      alt={author.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-accent/10">
+                      <span className="text-5xl font-bold text-foreground/20">
+                        {getInitials(author.name)}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
-                {/* 查看所有文章按鈕 - 固定在底部 */}
-                <div className="mt-6 pt-4 border-t border-border">
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-between group hover:bg-accent/10"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCardClick(author.id);
-                    }}
-                  >
-                    <span className="text-sm font-medium">查看所有文章</span>
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </Button>
+                {/* 作者資訊 - 使用 flex-1 讓內容區域填充空間 */}
+                <div className="flex flex-col flex-1 p-6">
+                  <div className="flex-1 space-y-3">
+                    <div className="space-y-1">
+                      <h2 className="text-xl font-bold text-foreground">
+                        {author.name}
+                      </h2>
+                      
+                      {author.title && (
+                        <p className="text-sm text-muted-foreground font-medium">
+                          {author.title}
+                        </p>
+                      )}
+                    </div>
+
+                    <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                      {author.description}
+                    </p>
+                  </div>
+
+                  {/* 查看所有文章按鈕 - 固定在底部 */}
+                  <div className="mt-6 pt-4 border-t border-border">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-between group hover:bg-accent/10"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCardClick(author.id);
+                      }}
+                    >
+                      <span className="text-sm font-medium">查看所有文章</span>
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            ))}
         </div>
 
         {/* 空狀態 */}

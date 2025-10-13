@@ -8,8 +8,6 @@ import { getLatestArticles } from '@/services/ArticleService';
 import { getAuthorsByIds } from '@/services/AuthorService';
 import { categories } from '@/data/categories';
 import Link from 'next/link';
-import { Article } from '@/types/article';
-import { Author } from '@/types/author';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 // Server Component - fetch data directly

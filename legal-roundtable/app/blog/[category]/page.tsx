@@ -6,7 +6,6 @@ import { categories } from "@/data/categories";
 import { getArticlesByCategoryWithAuthor } from "@/services/ArticleService";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import Image from "next/image";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 function getCategory(categoryId: string) {
@@ -40,37 +39,37 @@ export default async function CategoryPage({
 						"@type": "ListItem",
 						position: 1,
 						name: "首頁",
-						item: "https://easy-law.net",
+						item: "https://lawtable.org",
 					},
 					{
 						"@type": "ListItem",
 						position: 2,
 						name: "法律知識專欄",
-						item: "https://easy-law.net/blog",
+						item: "https://lawtable.org/blog",
 					},
 					{
 						"@type": "ListItem",
 						position: 3,
 						name: categoryInfo.name,
-						item: `https://easy-law.net/blog/${categoryInfo.id}`,
+						item: `https://lawtable.org/blog/${categoryInfo.id}`,
 					},
 				],
 			},
 			{
 				"@type": "CollectionPage",
-				"@id": `https://easy-law.net/blog/${categoryInfo.id}/#webpage`,
-				url: `https://easy-law.net/blog/${categoryInfo.id}`,
+				"@id": `https://lawtable.org/blog/${categoryInfo.id}/#webpage`,
+				url: `https://lawtable.org/blog/${categoryInfo.id}`,
 				name: categoryInfo.h1,
 				description: categoryInfo.description,
 				isPartOf: {
 					"@type": "WebSite",
-					url: "https://easy-law.net",
-					name: "EasyLaw 法律圓桌",
+					url: "https://lawtable.org",
+					name: "法律圓桌",
 				},
 				inLanguage: "zh-TW",
 				primaryImageOfPage: {
 					"@type": "ImageObject",
-					url: `https://easy-law.net${categoryInfo.image}`,
+					url: `https://lawtable.org${categoryInfo.image}`,
 					width: 1200,
 					height: 630,
 				},

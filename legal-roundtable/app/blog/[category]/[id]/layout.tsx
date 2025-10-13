@@ -24,9 +24,9 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
     }
 
     // 構建完整的 URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://easy-law.net';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://lawtable.org';
     const pageUrl = `${baseUrl}/blog/${resolvedParams.category}/${resolvedParams.id}`;
-    const ogImageUrl = article.image || `${baseUrl}/default-og-image.jpg`;
+    const ogImageUrl = article.image || `${baseUrl}/img/default.png`;
 
     // 處理 keywords
     const keywordsArray = Array.isArray(article.keywords) ? article.keywords : [];
@@ -70,8 +70,8 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
         title: article.title,
         description: article.excerpt,
         images: [ogImageUrl],
-        creator: '@EasyLaw',
-        site: '@EasyLaw',
+        creator: '@LawTable',
+        site: '@LawTable',
       },
       alternates: {
         canonical: pageUrl,

@@ -19,8 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
 
   const seoTitle = `${categoryInfo.h1} - 法律圓桌`;
   const seoDescription = categoryInfo.description;
-  const canonicalUrl = `https://easy-law.net/blog/${category}`;
-  const imageUrl = `https://easy-law.net${categoryInfo.image}`;
+  const canonicalUrl = `https://lawtable.org/blog/${category}`;
 
   return {
     title: seoTitle,
@@ -42,7 +41,7 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
       type: "website",
       images: [
         {
-          url: imageUrl,
+          url: 'https://lawtable.org/img/logo.png',
           width: 1200,
           height: 630,
           alt: `${categoryInfo.name} - 法律圓桌`,
@@ -53,7 +52,7 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
       card: "summary_large_image",
       title: seoTitle,
       description: seoDescription,
-      images: [imageUrl],
+      images: ['https://lawtable.org/img/logo.png'],
     },
     alternates: {
       canonical: canonicalUrl,
