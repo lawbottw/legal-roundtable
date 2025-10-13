@@ -28,6 +28,21 @@ const generateHeadingId = (text: string) => {
     .replace(/\s+/g, '-');
 };
 
+// 移除第一個 H1 的輔助函數
+function removeFirstH1(markdown: string): string {
+  let found = false;
+  return markdown
+    .split('\n')
+    .filter(line => {
+      if (!found && /^#\s+/.test(line.trim())) {
+        found = true;
+        return false;
+      }
+      return true;
+    })
+    .join('\n');
+}
+
 export default async function BlogPostPage({ params }: { params: Promise<PageParams> }) {
   const resolvedParams = await params;
 
@@ -71,6 +86,9 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
 
   // 提取 H1 標題
   const extractedH1 = extractH1FromMarkdown(post.content || '') || post.title;
+
+  // 移除第一個 H1
+  const contentWithoutFirstH1 = removeFirstH1(post.content || post.excerpt || '');
 
   // 結構化資料
   const structuredData = {
@@ -271,7 +289,7 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
           <div className="flex-1 min-w-0">
             {/* TOC for mobile - shows above content */}
             <div className="xl:hidden mb-8">
-              <TableOfContents content={post.content || post.excerpt || ''} />
+              <TableOfContents content={contentWithoutFirstH1} />
             </div>
 
             <div className="prose prose-lg max-w-none mb-16">
@@ -325,7 +343,7 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
                   ),
                 }}
               >
-                {post.content || post.excerpt}
+                {contentWithoutFirstH1}
               </ReactMarkdown>
             </div>
 
@@ -393,7 +411,7 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
           {/* Sidebar - TOC for desktop */}
           <aside className="hidden xl:block w-80 flex-shrink-0">
             <div className="sticky top-24 max-h-1/2">
-              <TableOfContents content={post.content || post.excerpt || ''} />
+              <TableOfContents content={contentWithoutFirstH1} />
             </div>
           </aside>
         </div>
