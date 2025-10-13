@@ -18,7 +18,9 @@ import { Author } from '@/types/author';
 import { Article } from '@/types/article';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Upload, X, User, Eye, Calendar, Folder } from 'lucide-react';
+import { Upload, X, User, Eye, Calendar, Folder, ExternalLink } from 'lucide-react';
+import Image from 'next/image';
+import { categories, CategoryKey } from '@/data/categories';
 
 export default function AdminPage() {
   const { user, isAdmin, loading: authLoading, signOut } = useAuth();
@@ -27,7 +29,7 @@ export default function AdminPage() {
   
   // Author state
   const [author, setAuthor] = useState<Author | null>(null);
-  const [authorForm, setAuthorForm] = useState({ name: '', description: '', avatar: '' });
+  const [authorForm, setAuthorForm] = useState({ name: '', description: '', avatar: '', title: '' });
   const [authorLoading, setAuthorLoading] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
   
@@ -52,7 +54,8 @@ export default function AdminPage() {
         setAuthorForm({
           name: authorData.name,
           description: authorData.description || '',
-          avatar: authorData.avatar || ''
+          avatar: authorData.avatar || '',
+          title: authorData.title || ''
         });
       }
     } catch (error) {
@@ -102,15 +105,20 @@ export default function AdminPage() {
         id: user.uid,
         name: authorForm.name,
         description: authorForm.description,
-        avatar: authorForm.avatar
+        avatar: authorForm.avatar,
+        title: authorForm.title
       });
       alert('作者資料更新成功！');
       await loadAuthorData();
     } catch (error) {
-      alert('更新失敗，請稍後再試');
+      alert('更新失敗,請稍後再試');
     } finally {
       setAuthorLoading(false);
     }
+  };
+
+  const handleArticleClick = (articleId: string) => {
+    router.push(`/admin/${articleId}`);
   };
 
   if (authLoading) {
@@ -134,7 +142,7 @@ export default function AdminPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold text-foreground">管理後台</h1>
-            <p className="text-muted-foreground mt-1">歡迎回來，{user.email}</p>
+            <p className="text-muted-foreground mt-1">歡迎回來,{user.email}</p>
           </div>
           <Button variant="outline" onClick={signOut} className="w-full sm:w-auto">
             登出
@@ -167,6 +175,17 @@ export default function AdminPage() {
                   </div>
 
                   <div className="space-y-2">
+                    <Label htmlFor="title" className="text-foreground">職稱</Label>
+                    <Input
+                      id="title"
+                      value={authorForm.title ?? ''}
+                      onChange={(e) => setAuthorForm({ ...authorForm, title: e.target.value })}
+                      className="bg-background"
+                      placeholder="例如：律師、法學教授"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
                     <Label htmlFor="description" className="text-foreground">簡介</Label>
                     <Textarea
                       id="description"
@@ -183,9 +202,11 @@ export default function AdminPage() {
                     
                     {authorForm.avatar ? (
                       <div className="relative w-fit">
-                        <img
+                        <Image
                           src={authorForm.avatar}
                           alt="Avatar"
+                          width={96}
+                          height={96}
                           className="w-24 h-24 rounded-full object-cover border-2 border-border shadow-sm"
                         />
                         <Button
@@ -280,34 +301,54 @@ export default function AdminPage() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {articles.map((article) => (
-                      <Link
-                        key={article.id}
-                        href={`/admin/${article.id}`}
-                        className="block border border-border rounded-lg p-4 hover:bg-accent hover:border-primary/50 transition-all"
-                      >
-                        <h3 className="font-semibold text-lg text-foreground mb-2">
-                          {article.title}
-                        </h3>
-                        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                          {article.excerpt}
-                        </p>
-                        <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Folder className="w-3 h-3" />
-                            {article.category}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Eye className="w-3 h-3" />
-                            {article.views}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {article.updatedAt.toDate().toLocaleDateString('zh-TW')}
-                          </span>
+                    {articles.map((article) => {
+                      const categoryKey = article.category as CategoryKey;
+                      const categoryObj = categories[categoryKey];
+                      return (
+                        <div
+                          key={article.id}
+                          className="border border-border rounded-lg p-4 hover:bg-accent hover:border-primary/50 transition-all cursor-pointer"
+                          onClick={() => handleArticleClick(article.id)}
+                        >
+                          <h3 className="font-semibold text-lg text-foreground mb-2">
+                            {article.title}
+                          </h3>
+                          <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                            {article.excerpt}
+                          </p>
+                          <div className="flex flex-wrap gap-3 text-xs text-muted-foreground items-center">
+                            <span className="flex items-center gap-1">
+                              <Folder className="w-3 h-3" />
+                              {categoryObj?.name ?? article.category}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Eye className="w-3 h-3" />
+                              {article.views}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              {article.updatedAt.toDate().toLocaleDateString('zh-TW')}
+                            </span>
+                            <Button
+                              asChild
+                              variant="outline"
+                              size="sm"
+                              className="ml-auto"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Link
+                                href={`/blog/${article.category}/${article.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <ExternalLink className="w-3 h-3 mr-1" />
+                                前台檢視
+                              </Link>
+                            </Button>
+                          </div>
                         </div>
-                      </Link>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </CardContent>

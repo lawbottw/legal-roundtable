@@ -3,6 +3,7 @@ import { collection, doc, getDocs, getDoc, addDoc, updateDoc, query,
 import { db } from "@/lib/firebase";
 import { Article, ArticleFormData, ArticleWithAuthor } from "@/types/article";
 import { Author } from "@/types/author";
+import { getAuthor, getAuthorsByIds } from "./AuthorService";
 
 const ARTICLES_COLLECTION = "articles";
 
@@ -311,3 +312,38 @@ export const incrementViews = async (id: string): Promise<void> => {
 //     throw new Error("Failed to toggle featured status");
 //   }
 // };
+
+// Get articles by category with author data
+export const getArticlesByCategoryWithAuthor = async (
+  category: string, 
+  limitCount: number = 20
+): Promise<ArticleWithAuthor[]> => {
+  try {
+    // 先獲取文章
+    const articles = await getArticlesByCategory(category, limitCount);
+    
+    if (articles.length === 0) {
+      return [];
+    }
+    
+    // 收集所有作者 ID
+    const authorIds = articles.map(article => article.authorId);
+    
+    // 批次獲取作者資料
+    const authorMap = await getAuthorsByIds(authorIds);
+    
+    // 組合文章和作者資料
+    const articlesWithAuthor: ArticleWithAuthor[] = articles.map(article => {
+      const author = authorMap.get(article.authorId);
+      if (!author) {
+        throw new Error(`Author not found for article ${article.id}`);
+      }
+      return addAuthorToArticle(article, author);
+    });
+    
+    return articlesWithAuthor;
+  } catch (error) {
+    console.error("Error fetching articles by category with author:", error);
+    throw new Error("Failed to fetch articles by category with author");
+  }
+};

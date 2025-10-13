@@ -2,14 +2,15 @@ import { Metadata } from 'next';
 import { getArticleByIdAdmin } from '@/services/ArticleServerService';
 
 interface Props {
-  params: { category: string; id: string };
+  params: Promise<{ category: string; id: string }>;
   children: React.ReactNode;
 }
 
-export async function generateMetadata({ params }: { params: { category: string; id: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ category: string; id: string }> }): Promise<Metadata> {
   try {
+    const resolvedParams = await params;
     // 使用 server service 取得文章資料（包含作者）
-    const article = await getArticleByIdAdmin(params.id);
+    const article = await getArticleByIdAdmin(resolvedParams.id);
 
     if (!article) {
       return {
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }: { params: { category: string;
 
     // 構建完整的 URL
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://easy-law.net';
-    const pageUrl = `${baseUrl}/blog/${params.category}/${params.id}`;
+    const pageUrl = `${baseUrl}/blog/${resolvedParams.category}/${resolvedParams.id}`;
     const ogImageUrl = article.image || `${baseUrl}/default-og-image.jpg`;
 
     // 處理 keywords

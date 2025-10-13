@@ -14,8 +14,8 @@ const notoSansTC = Noto_Sans_TC({
 
 
 export const metadata: Metadata = {
-  title: "法律圓桌",
-  description: "",
+  title: "法律圓桌 - 台灣法律專業知識與實務分析",
+  description: "法律圓桌是一個專為法律工作者打造的專業平台，撰文者包含律師、法務、法律科技從業人員等，匯集實務見解、判決分析與法律新知，讓專業知識更可近、更可懂。",
   keywords: ["法律問題"],
   authors: [{ name: "" }],
   creator: "",

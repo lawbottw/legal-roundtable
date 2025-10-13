@@ -69,7 +69,7 @@ export const updateAuthor = async (
     }
     
     const authorRef = doc(db, "authors", authorId);
-    await updateDoc(authorRef, filteredData);
+    await updateDoc(authorRef, filteredData); // filteredData 會包含 title
     
     console.log("作者資料更新成功");
   } catch (error) {

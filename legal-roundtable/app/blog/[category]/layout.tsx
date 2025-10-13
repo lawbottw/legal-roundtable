@@ -12,12 +12,12 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
   
   if (!categoryInfo) {
     return {
-      title: "分類不存在 | 法律圓桌",
+      title: "分類不存在 - 法律圓桌",
       description: "您查找的法律分類不存在，請返回專欄首頁瀏覽其他內容。"
     };
   }
 
-  const seoTitle = `${categoryInfo.h1} | 法律圓桌`;
+  const seoTitle = `${categoryInfo.h1} - 法律圓桌`;
   const seoDescription = categoryInfo.description;
   const canonicalUrl = `https://easy-law.net/blog/${category}`;
   const imageUrl = `https://easy-law.net${categoryInfo.image}`;

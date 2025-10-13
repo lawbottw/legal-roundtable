@@ -17,7 +17,8 @@ import { uploadImage } from '@/services/ImageService';
 import { Article, ArticleFormData, QAItem } from '@/types/article';
 import { categories } from '@/data/categories';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { ChevronDown, Upload, X, Image as ImageIcon, Trash2 } from 'lucide-react';
+import { ChevronDown, Upload, X, Image as ImageIcon, Trash2, ExternalLink } from 'lucide-react';
+import Image from 'next/image';
 
 export default function ArticleEditPage() {
   const params = useParams();
@@ -217,13 +218,25 @@ export default function ArticleEditPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto py-8 px-4 max-w-4xl">
-        <div className="flex items-center gap-4 mb-8">
-          <Button variant="outline" onClick={() => router.push('/admin')}>
-            ← 返回
-          </Button>
-          <h1 className="text-3xl font-bold text-foreground m-0 p-0">
-            {isNewArticle ? '新增文章' : '編輯文章'}
-          </h1>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <Button variant="outline" onClick={() => router.push('/admin')}>
+              ← 返回
+            </Button>
+            <h1 className="text-3xl font-bold text-foreground m-0 p-0">
+              {isNewArticle ? '新增文章' : '編輯文章'}
+            </h1>
+          </div>
+          {!isNewArticle && formData.category && (
+            <Button 
+              variant="outline" 
+              onClick={() => window.open(`/blog/${formData.category}/${articleId}`, '_blank')}
+              title="查看發布的文章"
+              className="p-2"
+            >
+              <ExternalLink className="w-4 h-4" />
+            </Button>
+          )}
         </div>
 
         <Card className="border-border">
@@ -297,9 +310,11 @@ export default function ArticleEditPage() {
                 
                 {formData.image ? (
                   <div className="relative w-full">
-                    <img
+                    <Image
                       src={formData.image}
                       alt="封面預覽"
+                      width={1200}
+                      height={400}
                       className="w-full h-64 object-cover rounded-lg border-2 border-border shadow-sm"
                     />
                     <Button

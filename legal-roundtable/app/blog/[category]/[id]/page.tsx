@@ -7,11 +7,13 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { TableOfContents } from "@/components/blog/table-of-contents";
 import { ShareButtonClient } from "@/components/blog/share-button-client";
+import { ViewTracker } from "@/components/blog/view-tracker";
 import { Calendar, Clock, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { getArticleByIdAdmin, getLatestArticlesWithAuthors, getArticlesByAuthorWithAuthor } from '@/services/ArticleServerService';
 import { categories, CategoryKey } from '@/data/categories';
 import { ArticleWithAuthor } from '@/types/article';
+import { extractH1FromMarkdown } from '@/lib/markdown-utils';
 
 interface PageParams {
   category: string;
@@ -69,6 +71,9 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://easy-law.net';
   const articleUrl = `${baseUrl}/blog/${resolvedParams.category}/${resolvedParams.id}`;
 
+  // 提取 H1 標題
+  const extractedH1 = extractH1FromMarkdown(post.content || '') || post.title;
+
   // 結構化資料
   const structuredData = {
     "@context": "https://schema.org",
@@ -98,14 +103,14 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
           {
             "@type": "ListItem",
             "position": 4,
-            "name": post.title
+            "name": extractedH1
           }
         ]
       },
       // Article 結構化資料
       {
         "@type": "Article",
-        "headline": post.title,
+        "headline": extractedH1,
         "description": post.excerpt,
         "image": post.image ? {
           "@type": "ImageObject",
@@ -151,7 +156,7 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
         "@type": "WebPage",
         "@id": articleUrl,
         "url": articleUrl,
-        "name": post.title,
+        "name": extractedH1,
         "description": post.excerpt,
         "isPartOf": {
           "@type": "WebSite",
@@ -183,6 +188,9 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
 
   return (
     <div className="min-h-screen bg-background">
+      {/* View Tracker - client component */}
+      <ViewTracker articleId={resolvedParams.id} />
+      
       {/* 結構化資料 */}
       <script
         type="application/ld+json"
@@ -195,7 +203,7 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
           <div className="flex items-center gap-1 text-sm text-muted-foreground mb-4 md:hidden">
             <Link href="/blog" className="hover:text-foreground transition-colors">法律專欄</Link>
             <ChevronRight className="w-3 h-3" />
-            <span className="truncate">{post.title}</span>
+            <span className="truncate">{extractedH1}</span>
           </div>
           
           {/* Desktop breadcrumb - full path */}
@@ -208,11 +216,11 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
               {category.name}
             </Link>
             <ChevronRight className="w-4 h-4" />
-            <span>{post.title}</span>
+            <span>{extractedH1}</span>
           </div>
           
           <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-            {post.title}
+            {extractedH1}
           </h1>
           
           <div className="flex flex-wrap items-center gap-6 mb-6">
@@ -251,7 +259,7 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
             <div className="flex items-center gap-2">
               <ShareButtonClient 
                 url={articleUrl}
-                title={post.title}
+                title={extractedH1}
               />
             </div>
           </div>
@@ -308,6 +316,14 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
                     <strong className="underline decoration-yellow-700 decoration-4 underline-offset-3">
                       {children}
                     </strong>
+                  ),
+                  img: ({ src, alt }) => (
+                    <img 
+                      src={src} 
+                      alt={alt || ''} 
+                      className="rounded-lg my-6 max-w-full h-auto shadow-md"
+                      loading="lazy"
+                    />
                   ),
                 }}
               >

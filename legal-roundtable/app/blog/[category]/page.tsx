@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight, ArrowLeft, Home } from "lucide-react";
 import { notFound } from "next/navigation";
 import { categories } from "@/data/categories";
-import { getArticlesByCategory } from "@/services/ArticleService";
+import { getArticlesByCategoryWithAuthor } from "@/services/ArticleService";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 function getCategory(categoryId: string) {
 	const category = categories[categoryId as keyof typeof categories];
@@ -25,7 +27,7 @@ export default async function CategoryPage({
 		notFound();
 	}
 
-	const posts = await getArticlesByCategory(category, 30);
+	const posts = await getArticlesByCategoryWithAuthor(category, 30);
 
 	// Generate structured data
 	const structuredData = {
@@ -87,7 +89,7 @@ export default async function CategoryPage({
 			
 			{/* Hero Section with Background Image */}
 			<div className="relative bg-primary/5 border-b border-border">
-				<div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10" />
+				<div className="absolute inset-0" />
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative">
 					{/* Breadcrumb */}
 					<nav
@@ -114,7 +116,7 @@ export default async function CategoryPage({
 
 					{/* Category Header */}
 					<header className="text-center max-w-3xl mx-auto">
-						<h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+						<h1 className="mb-4 bg-gradient-to-r from-primary to-primary/30 bg-clip-text text-transparent">
 							{categoryInfo.h1}
 						</h1>
 						<p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
@@ -130,7 +132,7 @@ export default async function CategoryPage({
 					<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-12">
 						{posts.map((post) => (
 							<Link key={post.id} href={`/blog/${category}/${post.id}`}>
-								<Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all duration-300 group">
+								<Card className="h-full shadow-none hover:border-primary/50 transition-all duration-300 group rounded-md flex flex-col">
 									<CardHeader className="space-y-3">
 										<div className="flex items-start justify-between gap-2">
 											<Badge variant="secondary" className="text-xs">
@@ -144,12 +146,23 @@ export default async function CategoryPage({
 											{post.title}
 										</CardTitle>
 									</CardHeader>
-									<CardContent className="space-y-4">
-										<CardDescription className="line-clamp-3">
+									<CardContent className="space-y-4 flex flex-col flex-grow">
+										<CardDescription className="line-clamp-3 flex-grow">
 											{post.excerpt}
 										</CardDescription>
-										<div className="flex items-center justify-between text-sm text-muted-foreground">
-											<span className="font-medium">{post.author.name}</span>
+										<div className="flex items-center justify-between text-sm text-muted-foreground mt-auto">
+											<span className="font-medium flex items-center gap-2">
+												<Avatar className="w-6 h-6">
+													<AvatarImage
+														src={post.author.avatar}
+														alt={post.author.name}
+													/>
+													<AvatarFallback>
+														{post.author.name?.[0]}
+													</AvatarFallback>
+												</Avatar>
+												{post.author.name}
+											</span>
 											<time dateTime={post.updatedAt.toDate().toISOString()}>
 												{post.updatedAt.toDate().toLocaleDateString('zh-TW')}
 											</time>

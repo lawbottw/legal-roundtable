@@ -4,8 +4,10 @@ import { useState, useRef } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { uploadImage } from '@/services/ImageService';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
@@ -26,17 +28,27 @@ const generateHeadingId = (text: string) => {
 
 export function MarkdownEditor({ value, onChange, label = '內容' }: MarkdownEditorProps) {
   const [uploading, setUploading] = useState(false);
+  const [showAltDialog, setShowAltDialog] = useState(false);
+  const [pendingImageUrl, setPendingImageUrl] = useState('');
+  const [imageAlt, setImageAlt] = useState('');
+  const [cursorPosition, setCursorPosition] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // 保存當前光標位置
+    const currentPosition = textareaRef.current?.selectionStart || value.length;
+    setCursorPosition(currentPosition);
+
     setUploading(true);
     try {
       const imageUrl = await uploadImage(file, 'articles/content');
-      const markdownImage = `![${file.name}](${imageUrl})`;
-      onChange(value + '\n' + markdownImage);
+      setPendingImageUrl(imageUrl);
+      setImageAlt(file.name.replace(/\.[^/.]+$/, '')); // 預設使用檔名作為 alt
+      setShowAltDialog(true);
     } catch (error) {
       alert('圖片上傳失敗');
     } finally {
@@ -45,6 +57,29 @@ export function MarkdownEditor({ value, onChange, label = '內容' }: MarkdownEd
         fileInputRef.current.value = '';
       }
     }
+  };
+
+  const handleInsertImage = () => {
+    const markdownImage = `![${imageAlt}](${pendingImageUrl})`;
+    
+    // 在光標位置插入圖片
+    const before = value.substring(0, cursorPosition);
+    const after = value.substring(cursorPosition);
+    const newValue = before + '\n' + markdownImage + '\n' + after;
+    
+    onChange(newValue);
+    setShowAltDialog(false);
+    setImageAlt('');
+    setPendingImageUrl('');
+    
+    // 設置焦點回到 textarea 並移動光標到插入的圖片後面
+    setTimeout(() => {
+      if (textareaRef.current) {
+        const newPosition = cursorPosition + markdownImage.length + 2;
+        textareaRef.current.focus();
+        textareaRef.current.setSelectionRange(newPosition, newPosition);
+      }
+    }, 100);
   };
 
   return (
@@ -80,6 +115,7 @@ export function MarkdownEditor({ value, onChange, label = '內容' }: MarkdownEd
         
         <TabsContent value="edit" className="mt-2">
           <Textarea
+            ref={textareaRef}
             value={value}
             onChange={(e) => onChange(e.target.value)}
             className="min-h-[400px] font-mono"
@@ -147,6 +183,9 @@ export function MarkdownEditor({ value, onChange, label = '內容' }: MarkdownEd
                     {children}
                   </a>
                 ),
+                img: ({ src, alt }) => (
+                  <img src={src} alt={alt || ''} className="rounded-lg my-4 max-w-full h-auto" />
+                ),
               }}
             >
               {value}
@@ -154,6 +193,47 @@ export function MarkdownEditor({ value, onChange, label = '內容' }: MarkdownEd
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Alt Text Dialog */}
+      <Dialog open={showAltDialog} onOpenChange={setShowAltDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>設置圖片描述</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="image-alt">圖片描述 (Alt Text)</Label>
+              <Input
+                id="image-alt"
+                value={imageAlt}
+                onChange={(e) => setImageAlt(e.target.value)}
+                placeholder="例如：訴訟流程示意圖"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleInsertImage();
+                  }
+                }}
+              />
+              <p className="text-xs text-muted-foreground">
+                圖片描述有助於 SEO 和無障礙使用
+              </p>
+            </div>
+            {pendingImageUrl && (
+              <div className="border rounded-lg p-2">
+                <img src={pendingImageUrl} alt="預覽" className="max-h-48 mx-auto" />
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAltDialog(false)}>
+              取消
+            </Button>
+            <Button onClick={handleInsertImage}>
+              插入圖片
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
