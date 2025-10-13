@@ -47,8 +47,28 @@ async function getHomePageData() {
 export default async function Home() {
 	const { latestArticles, featuredWriters } = await getHomePageData();
 
+	// Generate structured data for breadcrumb
+	const structuredData = {
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		itemListElement: [
+			{
+				"@type": "ListItem",
+				position: 1,
+				name: "首頁",
+				item: "https://lawtable.org",
+			},
+		],
+	};
+
 	return (
 		<div className="min-h-screen">
+			<script
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{
+					__html: JSON.stringify(structuredData),
+				}}
+			/>
 			<main>
 				{/* Hero Section - 優化漸層與動畫 */}
 				<section className="relative bg-gradient-to-br from-primary/5 via-background to-primary/10 py-24 overflow-hidden">

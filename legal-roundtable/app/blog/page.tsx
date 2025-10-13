@@ -146,8 +146,34 @@ export default function BlogPage() {
     </div>
   );
 
+  // Generate structured data for breadcrumb
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "首頁",
+        item: "https://lawtable.org",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "法律知識專欄",
+        item: "https://lawtable.org/blog",
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData),
+        }}
+      />
       {/* Hero Section with Gradient Overlay */}
       <section className="relative py-24 md:py-32 overflow-hidden">
         <div className="absolute inset-0 z-0">
