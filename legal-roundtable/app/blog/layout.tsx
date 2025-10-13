@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "https://lawtable.org/img/logo.png",
+        url: "https://lawtable.org/img/blog-hero.jpg",
         width: 1200,
         height: 630,
         alt: "法律知識專欄文章 - 法律圓桌"
