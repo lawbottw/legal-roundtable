@@ -12,6 +12,7 @@ import { Article } from '@/types/article';
 import { Author } from '@/types/author';
 import Link from 'next/link';
 import Image from 'next/image';
+import Script from "next/script";
 
 type ArticleWithAuthor = Article & { author: Author };
 type AuthorWithCount = Author & { articlesCount: number };
@@ -168,12 +169,14 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(structuredData),
-        }}
-      />
+      <Script
+          id="structured-data"
+          type="application/ld+json"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(structuredData)
+          }}
+        />
       {/* Hero Section with Gradient Overlay */}
       <section className="relative py-24 md:py-32 overflow-hidden">
         <div className="absolute inset-0 z-0">

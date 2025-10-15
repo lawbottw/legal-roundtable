@@ -9,6 +9,7 @@ import { getAuthorsByIds } from '@/services/AuthorService';
 import { categories } from '@/data/categories';
 import Link from 'next/link';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import Script from 'next/script';
 
 // Server Component - fetch data directly
 async function getHomePageData() {
@@ -63,12 +64,14 @@ export default async function Home() {
 
 	return (
 		<div className="min-h-screen">
-			<script
+			<Script
+				id="structured-data"
 				type="application/ld+json"
+				strategy="beforeInteractive"
 				dangerouslySetInnerHTML={{
-					__html: JSON.stringify(structuredData),
+					__html: JSON.stringify(structuredData)
 				}}
-			/>
+				/>
 			<main>
 				{/* Hero Section - 優化漸層與動畫 */}
 				<section className="relative bg-gradient-to-br from-primary/5 via-background to-primary/10 py-24 overflow-hidden">

@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
-import { Noto_Sans_TC } from "next/font/google";
+// import { Noto_Sans_TC } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import Script from "next/script";
 import { AuthProvider } from '@/contexts/AuthContext';
 
-const notoSansTC = Noto_Sans_TC({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "700", "900"],
-  variable: '--font-noto-sans-tc',
-});
+// const notoSansTC = Noto_Sans_TC({
+//   subsets: ["latin"],
+//   weight: ["300", "400", "500", "700", "900"],
+//   variable: '--font-noto-sans-tc',
+// });
 
 
 export const metadata: Metadata = {
-  title: "法律圓桌 - 台灣法律專業知識與實務分析",
+  title: "法律圓桌 - 法律專業知識與實務分析平台",
   description: "法律圓桌是一個專為法律工作者打造的專業平台，撰文者包含律師、法務、法律科技從業人員等，匯集實務見解、判決分析與法律新知，讓專業知識更可近、更可懂。",
   keywords: ["法律問題", "法普文章", '裁判分析', '實務見解', '交流平台'],
   authors: [{ name: "草莓乖乖" }, { name: "法律圓桌" }],
@@ -139,16 +139,16 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="zh-TW" suppressHydrationWarning>
-      <head>
-        <script
+    <html lang="zh-TW">
+      <body>
+        <Script
+          id="structured-data"
           type="application/ld+json"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(structuredData)
           }}
         />
-      </head>
-      <body className={`${notoSansTC.variable} font-noto-sans-tc antialiased`}>
         <Script
           async
           src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID}`}

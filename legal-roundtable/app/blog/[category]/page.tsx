@@ -7,6 +7,7 @@ import { getArticlesByCategoryWithAuthor } from "@/services/ArticleService";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import Script from "next/script";
 
 function getCategory(categoryId: string) {
 	const category = categories[categoryId as keyof typeof categories];
@@ -79,12 +80,14 @@ export default async function CategoryPage({
 
 	return (
 		<div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
-			<script
+			<Script
+				id="structured-data"
 				type="application/ld+json"
+				strategy="beforeInteractive"
 				dangerouslySetInnerHTML={{
-					__html: JSON.stringify(structuredData),
+					__html: JSON.stringify(structuredData)
 				}}
-			/>
+				/>
 			
 			{/* Hero Section with Background Image */}
 			<div className="relative bg-primary/5 border-b border-border">

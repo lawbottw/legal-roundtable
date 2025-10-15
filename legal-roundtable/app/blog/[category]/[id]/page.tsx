@@ -14,6 +14,7 @@ import { getArticleByIdAdmin, getLatestArticlesWithAuthors, getArticlesByAuthorW
 import { categories, CategoryKey } from '@/data/categories';
 import { ArticleWithAuthor } from '@/types/article';
 import { extractH1FromMarkdown } from '@/lib/markdown-utils';
+import Script from "next/script";
 
 interface PageParams {
   category: string;
@@ -207,11 +208,14 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
       {/* View Tracker - client component */}
       <ViewTracker articleId={resolvedParams.id} />
       
-      {/* 結構化資料 */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
+      <Script
+          id="structured-data"
+          type="application/ld+json"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(structuredData)
+          }}
+        />
 
       <article className="max-w-7xl mx-auto px-3 md:px-6 py-12">
         <div className="mb-4">
