@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   title: "法律圓桌 - 法律專業知識與實務分析平台",
   description: "法律圓桌是一個專為法律工作者打造的專業平台，撰文者包含律師、法務、法律科技從業人員等，匯集實務見解、判決分析與法律新知，讓專業知識更可近、更可懂。",
   keywords: ["法律問題", "法普文章", '裁判分析', '實務見解', '交流平台'],
-  authors: [{ name: "草莓乖乖" }, { name: "法律圓桌" }],
+  authors: [{ name: "法律圓桌" }],
   creator: "法律圓桌",
   publisher: "法律圓桌",
   applicationName: "法律圓桌",
