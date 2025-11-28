@@ -17,8 +17,23 @@ import { uploadImage } from '@/services/ImageService';
 import { Article, ArticleFormData, QAItem } from '@/types/article';
 import { categories } from '@/data/categories';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { ChevronDown, Upload, X, Image as ImageIcon, Trash2, ExternalLink } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { ChevronDown, Upload, X, Image as ImageIcon, Trash2, ExternalLink, Info } from 'lucide-react';
 import Image from 'next/image';
+
+// SEO 提示訊息的輔助元件
+function InfoTooltip({ content }: { content: string }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Info className="w-4 h-4 text-muted-foreground hover:text-primary cursor-help inline-block ml-1" />
+      </TooltipTrigger>
+      <TooltipContent className="max-w-xs">
+        <p className="text-sm">{content}</p>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
 
 export default function ArticleEditPage() {
   const params = useParams();
@@ -159,6 +174,12 @@ export default function ArticleEditPage() {
     e.preventDefault();
     if (!user) return;
 
+    // 驗證分類是否已選擇
+    if (!formData.category) {
+      alert('請選擇文章分類');
+      return;
+    }
+
     setSaving(true);
     try {
       // Filter out Q&A items with empty question or answer
@@ -216,322 +237,357 @@ export default function ArticleEditPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto py-8 px-4 max-w-4xl">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" onClick={() => router.push('/admin')}>
-              ← 返回
-            </Button>
-            <h1 className="text-3xl font-bold text-foreground m-0 p-0">
-              {isNewArticle ? '新增文章' : '編輯文章'}
-            </h1>
+    <TooltipProvider>
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto py-8 px-4 max-w-4xl">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <Button variant="outline" onClick={() => router.push('/admin')}>
+                ← 返回
+              </Button>
+              <h1 className="text-3xl font-bold text-foreground m-0 p-0">
+                {isNewArticle ? '新增文章' : '編輯文章'}
+              </h1>
+            </div>
+            {!isNewArticle && formData.category && (
+              <Button 
+                variant="outline" 
+                onClick={() => window.open(`/blog/${formData.category}/${articleId}`, '_blank')}
+                title="查看發布的文章"
+                className="p-2"
+              >
+                <ExternalLink className="w-4 h-4" />
+              </Button>
+            )}
           </div>
-          {!isNewArticle && formData.category && (
-            <Button 
-              variant="outline" 
-              onClick={() => window.open(`/blog/${formData.category}/${articleId}`, '_blank')}
-              title="查看發布的文章"
-              className="p-2"
-            >
-              <ExternalLink className="w-4 h-4" />
-            </Button>
-          )}
-        </div>
 
-        <Card className="border-border">
-          <CardHeader>
-            <CardTitle className="text-foreground">文章資訊</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="title" className="text-foreground">標題</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  required
-                  className="bg-background"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="excerpt" className="text-foreground">摘要</Label>
-                <Textarea
-                  id="excerpt"
-                  value={formData.excerpt}
-                  onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
-                  rows={3}
-                  required
-                  className="bg-background resize-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Card className="border-border">
+            <CardHeader>
+              <CardTitle className="text-foreground">文章資訊</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="category" className="text-foreground">分類</Label>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="w-full justify-between bg-background">
-                        {Object.values(categories).find(cat => cat.id === formData.category)?.name || "選擇分類"}
-                        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-full">
-                      {Object.values(categories).map((category) => (
-                        <DropdownMenuItem
-                          key={category.id}
-                          onSelect={() => setFormData({ ...formData, category: category.id })}
-                        >
-                          {category.name}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="readTime" className="text-foreground">閱讀時間 (分鐘)</Label>
+                  <Label htmlFor="title" className="text-foreground">
+                    標題
+                    <InfoTooltip content="標題是 SEO 最重要的元素，建議包含主要關鍵字，長度控制在 30-60 字元內。" />
+                  </Label>
                   <Input
-                    id="readTime"
-                    type="number"
-                    min="1"
-                    value={formData.readTime}
-                    onChange={(e) => setFormData({ ...formData, readTime: parseInt(e.target.value) })}
+                    id="title"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     required
                     className="bg-background"
                   />
                 </div>
-              </div>
 
-              <div className="space-y-3">
-                <Label className="text-foreground">封面圖片</Label>
-                
-                {formData.image ? (
-                  <div className="relative w-full">
-                    <Image
-                      src={formData.image}
-                      alt="封面預覽"
-                      width={1200}
-                      height={400}
-                      className="w-full h-64 object-cover rounded-lg border-2 border-border shadow-sm"
+                <div className="space-y-2">
+                  <Label htmlFor="excerpt" className="text-foreground">
+                    摘要
+                    <InfoTooltip content="摘要會顯示在搜尋結果中，應簡潔描述文章重點，建議 120-160 字元，包含核心關鍵字。" />
+                  </Label>
+                  <Textarea
+                    id="excerpt"
+                    value={formData.excerpt}
+                    onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
+                    rows={3}
+                    required
+                    className="bg-background resize-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="category" className="text-foreground">
+                      分類 <span className="text-destructive">*</span>
+                      <InfoTooltip content="正確的分類有助於網站結構化，讓搜尋引擎更好理解內容主題與相關性。" />
+                    </Label>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          className={`w-full justify-between bg-background ${!formData.category ? 'border-muted-foreground/50' : ''}`}
+                        >
+                          {Object.values(categories).find(cat => cat.id === formData.category)?.name || "選擇分類"}
+                          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-full">
+                        {Object.values(categories).map((category) => (
+                          <DropdownMenuItem
+                            key={category.id}
+                            onSelect={() => setFormData({ ...formData, category: category.id })}
+                          >
+                            {category.name}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="readTime" className="text-foreground">
+                      閱讀時間 (分鐘)
+                      <InfoTooltip content="預估閱讀時間可提升用戶體驗，讓讀者預期投入時間，減少跳出率。" />
+                    </Label>
+                    <Input
+                      id="readTime"
+                      type="number"
+                      min="1"
+                      value={formData.readTime}
+                      onChange={(e) => setFormData({ ...formData, readTime: parseInt(e.target.value) })}
+                      required
+                      className="bg-background"
                     />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      onClick={handleImageDelete}
-                      className="absolute top-4 right-4 h-10 w-10 rounded-full shadow-lg"
-                    >
-                      <Trash2 className="w-5 h-5" />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-foreground">
+                    封面圖片
+                    <InfoTooltip content="高品質封面圖能提升點擊率，建議使用描述性檔名，圖片會用於社群分享預覽。" />
+                  </Label>
+                  
+                  {formData.image ? (
+                    <div className="relative w-full">
+                      <Image
+                        src={formData.image}
+                        alt="封面預覽"
+                        width={1200}
+                        height={400}
+                        className="w-full h-64 object-cover rounded-lg border-2 border-border shadow-sm"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        onClick={handleImageDelete}
+                        className="absolute top-4 right-4 h-10 w-10 rounded-full shadow-lg"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-border rounded-lg p-8 bg-accent/30 hover:bg-accent/50 transition-colors">
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
+                          <ImageIcon className="w-10 h-10 text-muted-foreground" />
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm font-medium text-foreground mb-1">上傳封面圖片</p>
+                          <p className="text-xs text-muted-foreground">支援 JPG、PNG 格式</p>
+                        </div>
+                        <label htmlFor="image" className="cursor-pointer">
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            disabled={imageUploading}
+                            asChild
+                          >
+                            <span>
+                              {imageUploading ? (
+                                <>
+                                  <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin mr-2" />
+                                  上傳中...
+                                </>
+                              ) : (
+                                <>
+                                  <Upload className="w-4 h-4 mr-2" />
+                                  選擇檔案
+                                </>
+                              )}
+                            </span>
+                          </Button>
+                        </label>
+                        <Input
+                          id="image"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          disabled={imageUploading}
+                          className="hidden"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-foreground">
+                    關鍵字
+                    <InfoTooltip content="關鍵字幫助搜尋引擎理解文章主題，選擇 3-5 個與內容高度相關的詞彙。" />
+                  </Label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={keywordInput}
+                      onChange={(e) => setKeywordInput(e.target.value)}
+                      placeholder="輸入關鍵字，多個關鍵字用逗號分隔"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddKeyword();
+                        }
+                      }}
+                      className="bg-background"
+                    />
+                    <Button type="button" onClick={handleAddKeyword} variant="secondary">
+                      新增
                     </Button>
                   </div>
-                ) : (
-                  <div className="border-2 border-dashed border-border rounded-lg p-8 bg-accent/30 hover:bg-accent/50 transition-colors">
-                    <div className="flex flex-col items-center gap-4">
-                      <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
-                        <ImageIcon className="w-10 h-10 text-muted-foreground" />
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm font-medium text-foreground mb-1">上傳封面圖片</p>
-                        <p className="text-xs text-muted-foreground">支援 JPG、PNG 格式</p>
-                      </div>
-                      <label htmlFor="image" className="cursor-pointer">
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          disabled={imageUploading}
-                          asChild
+                  {formData.keywords.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {formData.keywords.map((keyword) => (
+                        <div
+                          key={keyword}
+                          className="bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-full text-sm flex items-center gap-2 hover:bg-primary/20 transition-colors"
                         >
-                          <span>
-                            {imageUploading ? (
-                              <>
-                                <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin mr-2" />
-                                上傳中...
-                              </>
-                            ) : (
-                              <>
-                                <Upload className="w-4 h-4 mr-2" />
-                                選擇檔案
-                              </>
-                            )}
-                          </span>
-                        </Button>
-                      </label>
-                      <Input
-                        id="image"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        disabled={imageUploading}
-                        className="hidden"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-3">
-                <Label className="text-foreground">關鍵字</Label>
-                <div className="flex gap-2">
-                  <Input
-                    value={keywordInput}
-                    onChange={(e) => setKeywordInput(e.target.value)}
-                    placeholder="輸入關鍵字，多個關鍵字用逗號分隔"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleAddKeyword();
-                      }
-                    }}
-                    className="bg-background"
-                  />
-                  <Button type="button" onClick={handleAddKeyword} variant="secondary">
-                    新增
-                  </Button>
-                </div>
-                {formData.keywords.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {formData.keywords.map((keyword) => (
-                      <div
-                        key={keyword}
-                        className="bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-full text-sm flex items-center gap-2 hover:bg-primary/20 transition-colors"
-                      >
-                        <span className="font-medium">{keyword}</span>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveKeyword(keyword)}
-                          className="hover:text-destructive transition-colors"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center gap-3 p-4 rounded-lg bg-accent/30 border border-border">
-                <Switch
-                  id="featured"
-                  checked={formData.featured}
-                  onCheckedChange={(checked) => setFormData({ ...formData, featured: checked })}
-                />
-                <Label htmlFor="featured" className="text-foreground cursor-pointer">
-                  設為精選文章
-                </Label>
-              </div>
-
-              <Separator />
-
-              <MarkdownEditor
-                value={formData.content}
-                onChange={(content) => setFormData({ ...formData, content })}
-                label="文章內容"
-              />
-
-              <Separator />
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-foreground text-lg">Q&A 問答</Label>
-                    <p className="text-sm text-muted-foreground mt-1">為文章添加常見問答</p>
-                  </div>
-                  <Button type="button" onClick={handleAddQA} variant="secondary" size="sm">
-                    <span className="mr-1">+</span> 新增 Q&A
-                  </Button>
-                </div>
-                
-                <div className="space-y-4">
-                  {(formData.qa || []).map((qa, index) => (
-                    <Card key={index} className="border-border bg-accent/20">
-                      <CardContent className="pt-6">
-                        <div className="space-y-4">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                                <span className="text-sm font-bold text-primary">Q{index + 1}</span>
-                              </div>
-                            </div>
-                            <Button
-                              type="button"
-                              onClick={() => handleRemoveQA(index)}
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <Label htmlFor={`question-${index}`} className="text-sm text-foreground">問題</Label>
-                            <Input
-                              id={`question-${index}`}
-                              value={qa.question}
-                              onChange={(e) => handleUpdateQA(index, 'question', e.target.value)}
-                              placeholder="輸入問題"
-                              className="bg-background"
-                            />
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <Label htmlFor={`answer-${index}`} className="text-sm text-foreground">回答</Label>
-                            <Textarea
-                              id={`answer-${index}`}
-                              value={qa.answer}
-                              onChange={(e) => handleUpdateQA(index, 'answer', e.target.value)}
-                              placeholder="輸入回答"
-                              rows={3}
-                              className="bg-background resize-none"
-                            />
-                          </div>
+                          <span className="font-medium">{keyword}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveKeyword(keyword)}
+                            className="hover:text-destructive transition-colors"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
                         </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                  
-                  {(!formData.qa || formData.qa.length === 0) && (
-                    <div className="text-center py-8 bg-accent/20 rounded-lg border border-dashed border-border">
-                      <p className="text-sm text-muted-foreground">尚未新增任何 Q&A</p>
-                      <p className="text-xs text-muted-foreground mt-1">點擊上方按鈕新增問答</p>
+                      ))}
                     </div>
                   )}
                 </div>
-              </div>
 
-              <Separator />
+                <div className="flex items-center gap-3 p-4 rounded-lg bg-accent/30 border border-border">
+                  <Switch
+                    id="featured"
+                    checked={formData.featured}
+                    onCheckedChange={(checked) => setFormData({ ...formData, featured: checked })}
+                  />
+                  <Label htmlFor="featured" className="text-foreground cursor-pointer">
+                    設為精選文章
+                    <InfoTooltip content="精選文章會優先顯示在首頁，增加曝光率與內部連結權重。" />
+                  </Label>
+                </div>
 
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button 
-                  type="submit" 
-                  disabled={saving || imageUploading}
-                  className="w-full sm:w-auto"
-                >
-                  {saving ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-background border-t-transparent rounded-full animate-spin mr-2" />
-                      儲存中...
-                    </>
-                  ) : (
-                    isNewArticle ? '創建文章' : '更新文章'
-                  )}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => router.push('/admin')}
-                  className="w-full sm:w-auto"
-                >
-                  取消
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+                <Separator />
+
+                <div className="space-y-2">
+                  <div className="flex items-center">
+                    <Label className="text-foreground">
+                      文章內容
+                      <InfoTooltip content="內容為王！確保文章原創、有價值，使用適當的標題層級 (H2、H3)，自然融入關鍵字。" />
+                    </Label>
+                  </div>
+                  <MarkdownEditor
+                    value={formData.content}
+                    onChange={(content) => setFormData({ ...formData, content })}
+                    label=""
+                  />
+                </div>
+
+                <Separator />
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-foreground text-lg">
+                        Q&A 問答
+                        <InfoTooltip content="Q&A 結構化資料有助於出現在 Google 精選摘要，大幅提升搜尋曝光率。" />
+                      </Label>
+                      <p className="text-sm text-muted-foreground mt-1">為文章添加常見問答</p>
+                    </div>
+                    <Button type="button" onClick={handleAddQA} variant="secondary" size="sm">
+                      <span className="mr-1">+</span> 新增 Q&A
+                    </Button>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {(formData.qa || []).map((qa, index) => (
+                      <Card key={index} className="border-border bg-accent/20">
+                        <CardContent className="pt-6">
+                          <div className="space-y-4">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                  <span className="text-sm font-bold text-primary">Q{index + 1}</span>
+                                </div>
+                              </div>
+                              <Button
+                                type="button"
+                                onClick={() => handleRemoveQA(index)}
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor={`question-${index}`} className="text-sm text-foreground">問題</Label>
+                              <Input
+                                id={`question-${index}`}
+                                value={qa.question}
+                                onChange={(e) => handleUpdateQA(index, 'question', e.target.value)}
+                                placeholder="輸入問題"
+                                className="bg-background"
+                              />
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor={`answer-${index}`} className="text-sm text-foreground">回答</Label>
+                              <Textarea
+                                id={`answer-${index}`}
+                                value={qa.answer}
+                                onChange={(e) => handleUpdateQA(index, 'answer', e.target.value)}
+                                placeholder="輸入回答"
+                                rows={3}
+                                className="bg-background resize-none"
+                              />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                    
+                    {(!formData.qa || formData.qa.length === 0) && (
+                      <div className="text-center py-8 bg-accent/20 rounded-lg border border-dashed border-border">
+                        <p className="text-sm text-muted-foreground">尚未新增任何 Q&A</p>
+                        <p className="text-xs text-muted-foreground mt-1">點擊上方按鈕新增問答</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button 
+                    type="submit" 
+                    disabled={saving || imageUploading}
+                    className="w-full sm:w-auto"
+                  >
+                    {saving ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-background border-t-transparent rounded-full animate-spin mr-2" />
+                        儲存中...
+                      </>
+                    ) : (
+                      isNewArticle ? '創建文章' : '更新文章'
+                    )}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => router.push('/admin')}
+                    className="w-full sm:w-auto"
+                  >
+                    取消
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 }
