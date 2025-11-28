@@ -43,7 +43,7 @@ export const Footer = () => {
               <Link href="https://www.edu.lawbot.tw" className="text-muted-foreground hover:text-primary transition-colors text-sm" target="_blank">
                 Lawbot 教育版
               </Link>
-              <Link href="https://lawtable.org" className="text-muted-foreground hover:text-primary transition-colors text-sm" target="_blank">
+              <Link href="https://easy-law.net" className="text-muted-foreground hover:text-primary transition-colors text-sm" target="_blank">
                 律點通 - 法律知識平台
               </Link>
             </div>
