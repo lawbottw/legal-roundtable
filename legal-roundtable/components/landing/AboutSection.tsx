@@ -23,7 +23,7 @@ const features = [
 
 export function AboutSection() {
 	return (
-		<section id="about" className="py-28 bg-background px-2 sm:px-4">
+		<section id="about" className="py-20 bg-background px-2 sm:px-4">
 			<div className="container mx-auto px-4">
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center max-w-7xl mx-auto">
 					{/* Image Side */}
@@ -40,7 +40,7 @@ export function AboutSection() {
 						</div>
 
 						{/* Floating Stats */}
-						<div className="absolute -bottom-8 -right-8 bg-background rounded-3xl p-8 shadow-2xl border-2 border-primary/20">
+						<div className="absolute -bottom-8 right-0 md:-right-8 bg-background rounded-3xl p-8 shadow-2xl border-2 border-primary/20">
 							<div className="flex items-center gap-6">
 								<div className="text-center">
 									<div className="text-4xl font-bold text-primary mb-1">5+</div>

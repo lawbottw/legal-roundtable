@@ -163,7 +163,7 @@ export default function RootLayout({
               gtag('config', '${process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID}');
           `}
         </Script>
-            <div className="min-h-dvh flex flex-col">
+            <div className="min-h-dvh flex flex-col bg-background text-foreground">
               <main className="flex-1">
                 <Header />
                 <AuthProvider>

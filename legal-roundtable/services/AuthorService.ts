@@ -1,5 +1,5 @@
 import { db } from "@/lib/firebase";
-import { doc, getDoc, updateDoc, getDocs, collection, query, where } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { Author } from "@/types/author";
 
 export const getAuthor = async (authorId: string): Promise<Author | null> => {
@@ -69,7 +69,9 @@ export const updateAuthor = async (
     }
     
     const authorRef = doc(db, "authors", authorId);
-    await updateDoc(authorRef, filteredData); // filteredData 會包含 title
+
+    // 使用 setDoc 並帶 merge 以便在文件不存在時自動建立
+    await setDoc(authorRef, filteredData, { merge: true }); // filteredData 會包含 title
     
     console.log("作者資料更新成功");
   } catch (error) {

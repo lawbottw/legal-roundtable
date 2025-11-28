@@ -19,7 +19,7 @@ interface WritersSectionProps {
 
 export function WritersSection({ writers }: WritersSectionProps) {
 	return (
-		<section id="writers" className="py-28 sm:px-8 md:px-16 bg-gradient-to-b from-muted/30 to-background">
+		<section id="writers" className="py-20 sm:px-8 md:px-16 bg-gradient-to-b from-muted/30 to-background">
 			<div className="container mx-auto px-4">
 				<div className="text-center mb-20">
 					<div className="inline-flex items-center space-x-2 bg-primary/10 backdrop-blur-sm px-5 py-2.5 rounded-full mb-6 border border-primary/20">

@@ -379,7 +379,7 @@ export default function ArticleEditPage() {
                     value={keywordInput}
                     onChange={(e) => setKeywordInput(e.target.value)}
                     placeholder="輸入關鍵字，多個關鍵字用逗號分隔"
-                    onKeyPress={(e) => {
+                    onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
                         handleAddKeyword();

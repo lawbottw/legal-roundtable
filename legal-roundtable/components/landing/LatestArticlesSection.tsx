@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Calendar, BookOpen, TrendingUp } from 'lucide-react';
+import { Calendar, BookOpen, TrendingUp } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -12,16 +12,17 @@ interface Article {
 	id: string;
 	title: string;
 	excerpt: string;
-	image?: string; // allow undefined
+	image?: string;
 	category: string;
 	readTime?: number;
 	updatedAt: { seconds: number };
 	authorId: string;
+	featured?: boolean; // 新增精選標記
 	author: {
 		id: string;
 		name: string;
 		description?: string;
-		avatar?: string; // allow undefined
+		avatar?: string;
 		title?: string;
 	};
 }
@@ -31,6 +32,11 @@ interface LatestArticlesSectionProps {
 }
 
 export function LatestArticlesSection({ articles }: LatestArticlesSectionProps) {
+	// 優先使用精選文章，不足時補充最新文章
+	const featuredArticles = articles.filter(a => a.featured);
+	const nonFeaturedArticles = articles.filter(a => !a.featured);
+	const displayArticles = [...featuredArticles, ...nonFeaturedArticles].slice(0, 4);
+
 	return (
 		<section id="articles" className="py-28 sm:px-8 md:px-16 bg-background">
 			<div className="container mx-auto px-4">
@@ -45,87 +51,12 @@ export function LatestArticlesSection({ articles }: LatestArticlesSectionProps) 
 					</p>
 				</div>
 
-				{articles.length > 0 && (
-					<div className="mb-20">
-						<Link href={`/blog/${articles[0].category}/${articles[0].id}`}>
-							<Card className="overflow-hidden hover:shadow-2xl transition-all duration-500 border-2 border-border/50 hover:border-primary/50 bg-card group cursor-pointer">
-								<div className="grid md:grid-cols-5 gap-0">
-									{/* Article Image */}
-									<div className="md:col-span-2 relative overflow-hidden bg-muted">
-										<Image
-											src={articles[0].image || "/img/default.png"}
-											alt={articles[0].title}
-											width={600}
-											height={400}
-											className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-										/>
-										<div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-										<div className="absolute top-6 left-6">
-											<Badge className="bg-primary text-primary-foreground shadow-xl px-4 py-1.5 text-sm font-semibold">
-												✨ 精選文章
-											</Badge>
-										</div>
-									</div>
-
-									{/* Content */}
-									<div className="md:col-span-3 p-10 md:p-12 flex flex-col justify-center">
-										<div className="flex items-center gap-4 mb-6 flex-wrap">
-											<Badge variant="secondary" className="rounded-full px-4 py-1 text-sm font-medium">
-												{categories[articles[0].category as keyof typeof categories]?.name || articles[0].category}
-											</Badge>
-											<span className="text-sm text-muted-foreground flex items-center font-medium">
-												<Calendar className="h-4 w-4 mr-2" />
-												{new Date(articles[0].updatedAt.seconds * 1000).toLocaleDateString('zh-TW')}
-											</span>
-											<span className="text-sm text-muted-foreground font-medium">
-												{articles[0].readTime || 5} 分鐘閱讀
-											</span>
-										</div>
-
-										<h3 className="text-3xl md:text-4xl font-bold text-foreground mb-6 group-hover:text-primary transition-colors leading-tight">
-											{articles[0].title}
-										</h3>
-
-										<p className="text-muted-foreground mb-10 text-lg leading-relaxed line-clamp-3">
-											{articles[0].excerpt}
-										</p>
-
-										<div className="flex items-center justify-between">
-											<div className="flex items-center space-x-4">
-												<Avatar className="w-14 h-14 border-2 border-primary/20 ring-4 ring-primary/5">
-													{/* fallback to empty string if undefined */}
-													<AvatarImage src={articles[0].author.avatar || ""} alt={articles[0].author.name} />
-													<AvatarFallback className="bg-primary/10 text-primary font-bold text-lg">
-														{articles[0].author.name?.[0] || 'U'}
-													</AvatarFallback>
-												</Avatar>
-												<div>
-													<p className="font-bold text-foreground text-lg">
-														{articles[0].author.name}
-													</p>
-													<p className="text-sm text-muted-foreground">
-														{articles[0].author.title || '法律專家'}
-													</p>
-												</div>
-											</div>
-											<div className="flex items-center text-primary font-semibold group-hover:gap-3 gap-2 transition-all">
-												<span>閱讀全文</span>
-												<ArrowRight className="h-6 w-6 group-hover:translate-x-1 transition-transform" />
-											</div>
-										</div>
-									</div>
-								</div>
-							</Card>
-						</Link>
-					</div>
-				)}
-
-				{/* Other Articles Grid */}
-				{articles.length > 1 && (
+				{/* Articles Grid */}
+				{displayArticles.length > 0 && (
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-						{articles.slice(1).map((article) => (
+						{displayArticles.slice(0, 3).map((article) => (
 							<Link key={article.id} href={`/blog/${article.category}/${article.id}`}>
-								<Card className="group hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-border/50 hover:border-primary/50 bg-card overflow-hidden h-full flex flex-col">
+								<Card className="pt-0 group hover:shadow-2xl transition-all duration-300 border-2 border-border/50 hover:border-primary/50">
 									{/* Image Section */}
 									<div className="relative h-56 overflow-hidden bg-muted">
 										<Image
@@ -136,9 +67,16 @@ export function LatestArticlesSection({ articles }: LatestArticlesSectionProps) 
 											className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
 										/>
 										<div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+										{article.featured && (
+											<div className="absolute top-4 left-4">
+												<Badge className="bg-primary text-primary-foreground shadow-xl px-3 py-1 text-xs font-semibold">
+													✨ 精選
+												</Badge>
+											</div>
+										)}
 									</div>
 
-									<CardHeader className="pb-4 pt-6 px-6">
+									<CardHeader>
 										<div className="flex justify-between items-center mb-4">
 											<Badge variant="outline" className="rounded-full px-3 py-1 text-xs font-medium border-2">
 												{categories[article.category as keyof typeof categories]?.name || article.category}
@@ -152,12 +90,12 @@ export function LatestArticlesSection({ articles }: LatestArticlesSectionProps) 
 										</CardTitle>
 									</CardHeader>
 
-									<CardContent className="space-y-4 flex-1 flex flex-col px-6 pb-6">
+									<CardContent className="space-y-2">
 										<CardDescription className="line-clamp-3 leading-relaxed flex-1 text-base">
 											{article.excerpt}
 										</CardDescription>
 
-										<div className="flex justify-between items-center pt-4 border-t-2 border-border/50 mt-auto">
+										<div className="flex justify-between items-center pt-2 border-t-2 border-border/50 mt-auto">
 											<div className="flex items-center space-x-3">
 												<Avatar className="w-10 h-10 border-2 border-primary/10">
 													<AvatarImage src={article.author.avatar || ""} alt={article.author.name} />
@@ -178,6 +116,62 @@ export function LatestArticlesSection({ articles }: LatestArticlesSectionProps) 
 								</Card>
 							</Link>
 						))}
+						{/* md 時顯示第 4 篇 */}
+						{displayArticles[3] && (
+							<Link href={`/blog/${displayArticles[3].category}/${displayArticles[3].id}`} className="hidden md:block lg:hidden">
+								<Card className="group hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-border/50 hover:border-primary/50 bg-card overflow-hidden h-full flex flex-col">
+									<div className="relative h-56 overflow-hidden bg-muted">
+										<Image
+											src={displayArticles[3].image || "/img/default.png"}
+											alt={displayArticles[3].title}
+											width={400}
+											height={200}
+											className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+										/>
+										{displayArticles[3].featured && (
+											<div className="absolute top-4 left-4">
+												<Badge className="bg-primary text-primary-foreground shadow-xl px-3 py-1 text-xs font-semibold">
+													✨ 精選
+												</Badge>
+											</div>
+										)}
+									</div>
+									<CardHeader className="pb-4 pt-6 px-6">
+										<div className="flex justify-between items-center mb-4">
+											<Badge variant="outline" className="rounded-full px-3 py-1 text-xs font-medium border-2">
+												{categories[displayArticles[3].category as keyof typeof categories]?.name || displayArticles[3].category}
+											</Badge>
+											<span className="text-xs text-muted-foreground font-semibold">
+												{displayArticles[3].readTime || 5} min
+											</span>
+										</div>
+										<CardTitle className="line-clamp-2 group-hover:text-primary transition-colors text-xl leading-snug font-bold">
+											{displayArticles[3].title}
+										</CardTitle>
+									</CardHeader>
+									<CardContent className="space-y-4 flex-1 flex flex-col px-6 pb-6">
+										<CardDescription className="line-clamp-3 leading-relaxed flex-1 text-base">
+											{displayArticles[3].excerpt}
+										</CardDescription>
+										<div className="flex justify-between items-center pt-4 border-t-2 border-border/50 mt-auto">
+											<div className="flex items-center space-x-3">
+												<Avatar className="w-10 h-10 border-2 border-primary/10">
+													<AvatarImage src={displayArticles[3].author.avatar || ""} alt={displayArticles[3].author.name} />
+													<AvatarFallback className="bg-primary/10 text-primary text-sm font-bold">
+														{displayArticles[3].author.name?.[0] || ''}
+													</AvatarFallback>
+												</Avatar>
+												<span className="text-sm font-semibold">{displayArticles[3].author.name}</span>
+											</div>
+											<div className="flex items-center space-x-1.5 text-xs text-muted-foreground font-medium">
+												<Calendar className="h-3.5 w-3.5" />
+												<span>{new Date(displayArticles[3].updatedAt.seconds * 1000).toLocaleDateString('zh-TW', { month: 'short', day: 'numeric' })}</span>
+											</div>
+										</div>
+									</CardContent>
+								</Card>
+							</Link>
+						)}
 					</div>
 				)}
 

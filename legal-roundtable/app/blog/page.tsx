@@ -15,7 +15,6 @@ import Image from 'next/image';
 import Script from "next/script";
 
 type ArticleWithAuthor = Article & { author: Author };
-type AuthorWithCount = Author & { articlesCount: number };
 
 const DEFAULT_IMAGE = '/img/default.png';
 
@@ -23,7 +22,6 @@ export default function BlogPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("全部");
   const [selectedAuthor, setSelectedAuthor] = useState<string>("全部");
   const [articles, setArticles] = useState<ArticleWithAuthor[]>([]);
-  const [featuredAuthors, setFeaturedAuthors] = useState<AuthorWithCount[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isAuthorDropdownOpen, setIsAuthorDropdownOpen] = useState(false);
@@ -54,21 +52,6 @@ export default function BlogPage() {
         }));
 
         setArticles(articlesWithAuthors);
-
-        const authorCountMap = new Map<string, number>();
-        latestArticles.forEach(article => {
-          const count = authorCountMap.get(article.authorId) || 0;
-          authorCountMap.set(article.authorId, count + 1);
-        });
-
-        const authorsWithCount: AuthorWithCount[] = Array.from(authorsMap.values())
-          .map(author => ({
-            ...author,
-            articlesCount: authorCountMap.get(author.id) || 0
-          }))
-          .slice(0, 8);
-
-        setFeaturedAuthors(authorsWithCount);
       } catch (error) {
         console.error('Error loading blog data:', error);
       } finally {
@@ -79,9 +62,14 @@ export default function BlogPage() {
     loadData();
   }, []);
 
+  // 從文章中提取不重複的作者列表
+  const uniqueAuthors = Array.from(
+    new Map(articles.map(article => [article.author.id, article.author])).values()
+  );
+
   const categoryKeys = Object.keys(categories) as CategoryKey[];
   const categoryOptions = ["全部", ...categoryKeys.map(key => categories[key].name)];
-  const authorOptions = ["全部", ...featuredAuthors.map(author => author.name)];
+  const authorOptions = ["全部", ...uniqueAuthors.map(author => author.name)];
 
   const filteredArticles = articles.filter(article => {
     const categoryName = categories[article.category as CategoryKey]?.name;
@@ -168,7 +156,7 @@ export default function BlogPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <Script
           id="structured-data"
           type="application/ld+json"
@@ -222,54 +210,97 @@ export default function BlogPage() {
                 ))}
               </div>
 
-              {/* 作者下拉選單 */}
-              <div className="relative flex-shrink-0">
-                <Button
-                  onClick={() => setIsAuthorDropdownOpen(!isAuthorDropdownOpen)}
-                  variant={selectedAuthor !== "全部" ? "default" : "outline"}
-                  className="min-w-[140px] justify-between"
-                >
-                  <span className="truncate">{selectedAuthor}</span>
-                  <ChevronDown className={`h-4 w-4 flex-shrink-0 transition-transform ${isAuthorDropdownOpen ? 'rotate-180' : ''}`} />
-                </Button>
-                {isAuthorDropdownOpen && (
-                  <div className="absolute top-full mt-2 right-0 w-64 bg-card border border-border rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
-                    {authorOptions.map((author) => {
-                      const authorData = featuredAuthors.find(a => a.name === author);
-                      return (
-                        <Button
-                          key={author}
-                          onClick={() => {
-                            setSelectedAuthor(author);
-                            setIsAuthorDropdownOpen(false);
-                          }}
-                          variant="ghost"
-                          className="w-full justify-start h-auto py-3 px-4"
-                        >
-                          {authorData && author !== "全部" ? (
-                            <>
-                              <Avatar className="w-8 h-8 flex-shrink-0 mr-3">
-                                <AvatarImage src={authorData.avatar} alt={author} />
-                                <AvatarFallback className="text-xs bg-muted">{author[0]}</AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1 min-w-0 text-left">
-                                <div className="font-medium text-sm text-foreground">{author}</div>
-                                <div className="text-xs text-muted-foreground">{authorData.articlesCount} 篇文章</div>
-                              </div>
-                            </>
-                          ) : (
-                            <span className="font-medium text-sm text-foreground pl-2">{author}</span>
-                          )}
-                          {selectedAuthor === author && (
-                            <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 ml-2" />
-                          )}
-                        </Button>
-                      );
-                    })}
-                  </div>
+              {/* 作者下拉選單 + 桌面上顯示數字 Badge */}
+              <div className="relative flex-shrink-0 flex items-center gap-3">
+                {/* 作者下拉原有區塊 */}
+                <div className="relative">
+                  <Button
+                    onClick={() => setIsAuthorDropdownOpen(!isAuthorDropdownOpen)}
+                    variant={selectedAuthor !== "全部" ? "default" : "outline"}
+                    className="min-w-[140px] justify-between"
+                  >
+                    <span className="truncate">{selectedAuthor}</span>
+                    <ChevronDown className={`h-4 w-4 flex-shrink-0 transition-transform ${isAuthorDropdownOpen ? 'rotate-180' : ''}`} />
+                  </Button>
+                  {isAuthorDropdownOpen && (
+                    <div className="absolute top-full mt-2 right-0 w-64 bg-card border border-border rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
+                      {authorOptions.map((authorName) => {
+                        const authorData = uniqueAuthors.find(a => a.name === authorName);
+                        return (
+                          <Button
+                            key={authorName}
+                            onClick={() => {
+                              setSelectedAuthor(authorName);
+                              setIsAuthorDropdownOpen(false);
+                            }}
+                            variant="ghost"
+                            className="w-full justify-start h-auto py-3 px-4"
+                          >
+                            {authorData && authorName !== "全部" ? (
+                              <>
+                                <Avatar className="w-8 h-8 flex-shrink-0 mr-3">
+                                  <AvatarImage src={authorData.avatar} alt={authorName} />
+                                  <AvatarFallback className="text-xs bg-muted">{authorName[0]}</AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1 min-w-0 text-left">
+                                  <div className="font-medium text-sm text-foreground">{authorName}</div>
+                                </div>
+                              </>
+                            ) : (
+                              <span className="font-medium text-sm text-foreground pl-2">{authorName}</span>
+                            )}
+                            {selectedAuthor === authorName && (
+                              <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 ml-2" />
+                            )}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* 大螢幕也顯示的數字徽章 */}
+                {activeFiltersCount > 0 && (
+                  <Badge variant="default" className="ml-2 h-6 min-w-[22px] px-2 flex items-center justify-center">
+                    {activeFiltersCount}
+                  </Badge>
                 )}
               </div>
             </div>
+
+            {/* Active Filters - Desktop（與行動版相同的已啟用篩選標籤，但只在 lg 顯示） */}
+            {activeFiltersCount > 0 && (
+              <div className="mt-3 hidden lg:flex items-center gap-2 overflow-x-auto pb-1">
+                {selectedCategory !== "全部" && (
+                  <Badge variant="secondary" className="gap-1.5 pl-3 pr-2 py-1.5 whitespace-nowrap">
+                    <BookOpen className="h-3 w-3" />
+                    {selectedCategory}
+                    <Button
+                      onClick={() => setSelectedCategory("全部")}
+                      variant="ghost"
+                      size="icon"
+                      className="ml-1 h-4 w-4 p-0 hover:bg-background/50"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </Badge>
+                )}
+                {selectedAuthor !== "全部" && (
+                  <Badge variant="secondary" className="gap-1.5 pl-3 pr-2 py-1.5 whitespace-nowrap">
+                    <User className="h-3 w-3" />
+                    {selectedAuthor}
+                    <Button
+                      onClick={() => setSelectedAuthor("全部")}
+                      variant="ghost"
+                      size="icon"
+                      className="ml-1 h-4 w-4 p-0 hover:bg-background/50"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </Badge>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Mobile Filter - 底部抽屜 */}
@@ -341,49 +372,6 @@ export default function BlogPage() {
         </div>
       </section>
 
-      {/* Featured Authors Section */}
-      {featuredAuthors.length > 0 && (
-        <section id="writers" className="py-16 bg-background">
-          <div className="container mx-auto px-4 max-w-6xl">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 className="text-3xl font-bold text-foreground mb-2">特約作者</h2>
-                <p className="text-muted-foreground">來自法律界的專業作者</p>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {featuredAuthors.map((author) => (
-                <Link key={author.id} href={`/author/${author.id}`}>
-                  <div className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer hover:border-primary/50 group">
-                    <div className="flex flex-col items-center text-center space-y-4">
-                      <Avatar className="w-16 h-16 border-2 border-border group-hover:border-primary transition-colors">
-                        <AvatarImage src={author.avatar} alt={author.name} />
-                        <AvatarFallback className="bg-muted">{author.name[0]}</AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-foreground mb-1 group-hover:text-primary transition-colors">
-                          {author.name}
-                        </h3>
-                        <p className="text-sm text-muted-foreground mb-2">{author.title || '法律專家'}</p>
-                        <Badge variant="secondary" className="text-xs mb-3">
-                          {author.articlesCount} 篇文章
-                        </Badge>
-                        {author.description && (
-                          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
-                            {author.description}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Articles Section */}
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4 max-w-6xl">
@@ -392,11 +380,13 @@ export default function BlogPage() {
             <div className="mb-12">
               <div className="flex items-center mb-6">
                 <Star className="h-5 w-5 text-primary mr-2 fill-primary" />
-                <h2 className="text-2xl font-bold text-foreground">精選文章</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-0">精選文章</h2>
               </div>
-              <div className="grid md:grid-cols-2 gap-8">
-                {featuredArticlesList.map((article) => (
-                  <Link key={article.id} href={`/blog/${article.id}`}>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {featuredArticlesList.map((article) => {
+                  const categorySlug = encodeURIComponent(String(article.category));
+                  return (
+                    <Link key={article.id} href={`/blog/${categorySlug}/${article.id}`}>
                     <article className="group cursor-pointer bg-card border border-border rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 hover:border-primary/50">
                       <div className="aspect-[16/9] overflow-hidden bg-muted">
                         <Image
@@ -439,8 +429,9 @@ export default function BlogPage() {
                         </div>
                       </div>
                     </article>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -450,8 +441,10 @@ export default function BlogPage() {
             <div>
               <h2 className="text-2xl font-bold text-foreground mb-6">最新文章</h2>
               <div className="grid gap-6">
-                {regularArticles.map((article) => (
-                  <Link key={article.id} href={`/blog/${article.id}`}>
+                {regularArticles.map((article) => {
+                  const categorySlug = encodeURIComponent(String(article.category));
+                  return (
+                    <Link key={article.id} href={`/blog/${categorySlug}/${article.id}`}>
                     <article className="group cursor-pointer bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:border-primary/50">
                       <div className="flex flex-col md:flex-row gap-6">
                         <div className="md:w-48 flex-shrink-0">
@@ -498,8 +491,9 @@ export default function BlogPage() {
                         </div>
                       </div>
                     </article>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           )}
