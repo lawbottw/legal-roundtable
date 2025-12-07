@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { incrementViews } from '@/services/ArticleService';
 
 interface ViewTrackerProps {
   articleId: string;
@@ -16,7 +15,9 @@ export function ViewTracker({ articleId }: ViewTrackerProps) {
 
     // 延遲執行，確保不阻塞頁面渲染
     const timeoutId = setTimeout(() => {
-      incrementViews(articleId).catch(() => {
+      fetch(`/api/articles/${articleId}/views`, {
+        method: 'POST',
+      }).catch(() => {
         // 靜默處理錯誤，不影響用戶體驗
       });
       hasIncremented.current = true;

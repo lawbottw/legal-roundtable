@@ -14,6 +14,12 @@ interface TableOfContentsProps {
   className?: string;
 }
 
+// 移除 Markdown 連結，只保留文字
+const removeMarkdownLinks = (text: string): string => {
+  // 將 [text](url) 替換為 text
+  return text.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+};
+
 export function TableOfContents({ content, className }: TableOfContentsProps) {
   const [tocItems, setTocItems] = useState<TocItem[]>([]);
   const [activeId, setActiveId] = useState<string>('');
@@ -22,15 +28,26 @@ export function TableOfContents({ content, className }: TableOfContentsProps) {
     // 提取標題
     const headingRegex = /^(#{1,6})\s+(.+)$/gm;
     const items: TocItem[] = [];
+    const idCountMap: Record<string, number> = {}; // 追蹤 ID 出現次數
     let match;
 
     while ((match = headingRegex.exec(content)) !== null) {
       const level = match[1].length;
-      const text = match[2].trim();
-      const id = text
+      // 先移除 Markdown 連結
+      const text = removeMarkdownLinks(match[2].trim());
+      const baseId = text
         .toLowerCase()
         .replace(/[^\w\u4e00-\u9fff\s-]/g, '') // 保留中文字符
         .replace(/\s+/g, '-');
+      
+      // 處理重複 ID
+      if (idCountMap[baseId] === undefined) {
+        idCountMap[baseId] = 0;
+      } else {
+        idCountMap[baseId]++;
+      }
+      
+      const id = idCountMap[baseId] === 0 ? baseId : `${baseId}-${idCountMap[baseId]}`;
       
       items.push({ id, text, level });
     }
@@ -39,7 +56,7 @@ export function TableOfContents({ content, className }: TableOfContentsProps) {
   }, [content]);
 
   useEffect(() => {
-    // 監聽滾動事件來更新活動標題
+    // 監聽滾动事件來更新活動標題
     const handleScroll = () => {
       const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
       const scrollPosition = window.scrollY + 100;

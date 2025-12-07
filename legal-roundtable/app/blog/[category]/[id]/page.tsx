@@ -15,11 +15,34 @@ import { categories, CategoryKey } from '@/data/categories';
 import { ArticleWithAuthor } from '@/types/article';
 import { extractH1FromMarkdown } from '@/lib/markdown-utils';
 import Script from "next/script";
+import { ReactNode } from 'react';
 
 interface PageParams {
   category: string;
   id: string;
 }
+
+// 移除 Markdown 連結，只保留文字
+const removeMarkdownLinks = (text: string): string => {
+  return text.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+};
+
+// 遞迴提取 React children 的純文字
+const extractTextFromChildren = (children: ReactNode): string => {
+  if (typeof children === 'string') {
+    return children;
+  }
+  if (typeof children === 'number') {
+    return String(children);
+  }
+  if (Array.isArray(children)) {
+    return children.map(extractTextFromChildren).join('');
+  }
+  if (children && typeof children === 'object' && 'props' in children) {
+    return extractTextFromChildren((children as { props: { children?: ReactNode } }).props.children);
+  }
+  return '';
+};
 
 // 生成標題 ID 的輔助函數
 const generateHeadingId = (text: string) => {
@@ -27,6 +50,23 @@ const generateHeadingId = (text: string) => {
     .toLowerCase()
     .replace(/[^\w\u4e00-\u9fff\s-]/g, '')
     .replace(/\s+/g, '-');
+};
+
+// 建立 heading ID 計數器的工廠函數
+const createHeadingIdGenerator = () => {
+  const idCountMap: Record<string, number> = {};
+  
+  return (text: string) => {
+    const baseId = generateHeadingId(text);
+    
+    if (idCountMap[baseId] === undefined) {
+      idCountMap[baseId] = 0;
+    } else {
+      idCountMap[baseId]++;
+    }
+    
+    return idCountMap[baseId] === 0 ? baseId : `${baseId}-${idCountMap[baseId]}`;
+  };
 };
 
 // 移除第一個 H1 的輔助函數
@@ -300,52 +340,58 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 rehypePlugins={[rehypeRaw]}
-                components={{
-                  h1: ({ children }) => {
-                    const text = children?.toString() || '';
-                    const id = generateHeadingId(text);
-                    return <h1 id={id} className="text-foreground/95 mb-6 mt-8 scroll-mt-24">{children}</h1>;
-                  },
-                  h2: ({ children }) => {
-                    const text = children?.toString() || '';
-                    const id = generateHeadingId(text);
-                    return <h2 id={id} className="text-foreground/90 mb-5 mt-8 border-l-4 border-primary pl-4 scroll-mt-24">{children}</h2>;
-                  },
-                  h3: ({ children }) => {
-                    const text = children?.toString() || '';
-                    const id = generateHeadingId(text);
-                    return <h3 id={id} className="text-foreground/90 mb-4 mt-6 scroll-mt-24">{children}</h3>;
-                  },
-                  h4: ({ children }) => {
-                    const text = children?.toString() || '';
-                    const id = generateHeadingId(text);
-                    return <h4 id={id} className="text-foreground/90 mb-4 mt-6 scroll-mt-24">{children}</h4>;
-                  },
-                  h5: ({ children }) => {
-                    const text = children?.toString() || '';
-                    const id = generateHeadingId(text);
-                    return <h5 id={id} className="text-foreground/90 mb-4 mt-6 scroll-mt-24">{children}</h5>;
-                  },
-                  h6: ({ children }) => {
-                    const text = children?.toString() || '';
-                    const id = generateHeadingId(text);
-                    return <h6 id={id} className="text-foreground/90 mb-4 mt-6 scroll-mt-24">{children}</h6>;
-                  },
-                  p: ({ children }) => <p className="text-foreground/90 mb-4">{children}</p>,
-                  strong: ({ children }) => (
-                    <strong className="underline decoration-yellow-700 decoration-4 underline-offset-3">
-                      {children}
-                    </strong>
-                  ),
-                  img: ({ src, alt }) => (
-                    <img 
-                      src={src} 
-                      alt={alt || ''} 
-                      className="rounded-lg my-6 max-w-full h-auto shadow-md"
-                      loading="lazy"
-                    />
-                  ),
-                }}
+                components={(() => {
+                  // 為每次渲染建立新的 ID 生成器
+                  const getUniqueId = createHeadingIdGenerator();
+                  
+                  return {
+                    h1: ({ children }) => {
+                      const text = extractTextFromChildren(children);
+                      const id = getUniqueId(text);
+                      return <h1 id={id} className="text-foreground/95 mb-6 mt-8 scroll-mt-24">{children}</h1>;
+                    },
+                    h2: ({ children }) => {
+                      const text = extractTextFromChildren(children);
+                      const id = getUniqueId(text);
+                      return <h2 id={id} className="text-foreground/90 mb-5 mt-8 border-l-4 border-primary pl-4 scroll-mt-24">{children}</h2>;
+                    },
+                    h3: ({ children }) => {
+                      const text = extractTextFromChildren(children);
+                      const id = getUniqueId(text);
+                      return <h3 id={id} className="text-foreground/90 mb-4 mt-6 scroll-mt-24">{children}</h3>;
+                    },
+                    h4: ({ children }) => {
+                      const text = extractTextFromChildren(children);
+                      const id = getUniqueId(text);
+                      return <h4 id={id} className="text-foreground/90 mb-4 mt-6 scroll-mt-24">{children}</h4>;
+                    },
+                    h5: ({ children }) => {
+                      const text = extractTextFromChildren(children);
+                      const id = getUniqueId(text);
+                      return <h5 id={id} className="text-foreground/90 mb-4 mt-6 scroll-mt-24">{children}</h5>;
+                    },
+                    h6: ({ children }) => {
+                      const text = extractTextFromChildren(children);
+                      const id = getUniqueId(text);
+                      return <h6 id={id} className="text-foreground/90 mb-4 mt-6 scroll-mt-24">{children}</h6>;
+                    },
+                    p: ({ children }) => <p className="text-foreground/90 mb-4">{children}</p>,
+                    a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-foreground/90 hover:text-primary underline underline-offset-4">{children}</a>,
+                    strong: ({ children }) => (
+                      <strong className="underline decoration-yellow-700 decoration-4 underline-offset-3">
+                        {children}
+                      </strong>
+                    ),
+                    img: ({ src, alt }) => (
+                      <img 
+                        src={src} 
+                        alt={alt || ''} 
+                        className="rounded-lg my-6 max-w-full h-auto shadow-md"
+                        loading="lazy"
+                      />
+                    ),
+                  };
+                })()}
               >
                 {contentWithoutFirstH1}
               </ReactMarkdown>
@@ -388,14 +434,14 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
                     const articleCategory = categories[article.category as CategoryKey];
                     return (
                       <Link key={article.id} href={`/blog/${article.category}/${article.id}`}>
-                        <div className="group p-4 rounded-lg border-0 bg-muted/20 hover:bg-muted/40 transition-all duration-200 hover:scale-[1.02]">
+                        <div className="flex flex-col flex-1 h-full group p-4 rounded-lg border-0 bg-muted/20 hover:bg-muted/40 transition-all duration-200 hover:scale-[1.02]">
                           <Badge variant="outline" className="mb-1">
                             {articleCategory?.name || article.category}
                           </Badge>
                           <h3 className="font-semibold mb-2 text-foreground group-hover:text-primary transition-colors line-clamp-2">
                             {article.title}
                           </h3>
-                          <p className="text-base text-secondary-foreground leading-normal mb-3 line-clamp-4">
+                          <p className="flex-1 text-base text-secondary-foreground leading-normal mb-3 line-clamp-4">
                             {article.excerpt}
                           </p>
                           <div className="flex items-center justify-between text-xs text-muted-foreground">
