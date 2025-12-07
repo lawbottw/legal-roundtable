@@ -56,7 +56,7 @@ export function LatestArticlesSection({ articles }: LatestArticlesSectionProps) 
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
 						{displayArticles.slice(0, 3).map((article) => (
 							<Link key={article.id} href={`/blog/${article.category}/${article.id}`}>
-								<Card className="pt-0 group hover:shadow-2xl transition-all duration-300 border-2 border-border/50 hover:border-primary/50">
+								<Card className="flex-1 h-full pt-0 group hover:shadow-2xl transition-all duration-300 border-2 border-border/50 hover:border-primary/50">
 									{/* Image Section */}
 									<div className="relative h-56 overflow-hidden bg-muted">
 										<Image
@@ -90,7 +90,7 @@ export function LatestArticlesSection({ articles }: LatestArticlesSectionProps) 
 										</CardTitle>
 									</CardHeader>
 
-									<CardContent className="space-y-2">
+									<CardContent className="space-y-2 flex-1 flex flex-col px-6 pb-6">
 										<CardDescription className="line-clamp-3 leading-relaxed flex-1 text-base">
 											{article.excerpt}
 										</CardDescription>
