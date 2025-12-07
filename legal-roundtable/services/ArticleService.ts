@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, getDoc, addDoc, updateDoc, query, 
+import { collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, query, 
     orderBy, limit, where, increment, serverTimestamp, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Article, ArticleFormData, ArticleWithAuthor } from "@/types/article";
@@ -191,16 +191,16 @@ export const updateArticle = async (
   }
 };
 
-// // Delete article
-// export const deleteArticle = async (id: string): Promise<void> => {
-//   try {
-//     const docRef = doc(db, ARTICLES_COLLECTION, id);
-//     await deleteDoc(docRef);
-//   } catch (error) {
-//     console.error("Error deleting article:", error);
-//     throw new Error("Failed to delete article");
-//   }
-// };
+// Delete article
+export const deleteArticle = async (id: string): Promise<void> => {
+  try {
+    const docRef = doc(db, ARTICLES_COLLECTION, id);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error("Error deleting article:", error);
+    throw new Error("Failed to delete article");
+  }
+};
 
 // Increment article views
 export const incrementViews = async (id: string): Promise<void> => {

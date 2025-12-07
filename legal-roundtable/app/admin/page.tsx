@@ -12,15 +12,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { getAuthor, updateAuthor } from '@/services/AuthorService';
-import { getArticlesByAuthor } from '@/services/ArticleService';
+import { getArticlesByAuthor, deleteArticle } from '@/services/ArticleService';
 import { uploadImage } from '@/services/ImageService';
 import { Author } from '@/types/author';
 import { Article } from '@/types/article';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Upload, X, User, Eye, Calendar, Folder, ExternalLink } from 'lucide-react';
+import { Upload, X, User, Eye, Calendar, Folder, ExternalLink, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { categories, CategoryKey } from '@/data/categories';
+import { toast } from 'sonner';
 
 export default function AdminPage() {
   const { user, isAdmin, loading: authLoading, signOut } = useAuth();
@@ -119,6 +120,23 @@ export default function AdminPage() {
 
   const handleArticleClick = (articleId: string) => {
     router.push(`/admin/${articleId}`);
+  };
+
+  const handleDeleteArticle = async (e: React.MouseEvent, articleId: string, articleTitle: string) => {
+    e.stopPropagation();
+    
+    if (!confirm(`確定要刪除文章「${articleTitle}」嗎？此操作無法復原。`)) {
+      return;
+    }
+    
+    try {
+      await deleteArticle(articleId);
+      setArticles(articles.filter(a => a.id !== articleId));
+      // toast.success('文章刪除成功');
+    } catch (error) {
+      console.error('Failed to delete article:', error);
+      alert('刪除失敗，請稍後再試');
+    }
   };
 
   if (authLoading) {
@@ -307,10 +325,18 @@ export default function AdminPage() {
                       return (
                         <div
                           key={article.id}
-                          className="border border-border rounded-lg p-4 hover:bg-accent hover:border-primary/50 transition-all cursor-pointer"
+                          className="relative border border-border rounded-lg p-4 hover:bg-accent hover:border-primary/50 transition-all cursor-pointer"
                           onClick={() => handleArticleClick(article.id)}
                         >
-                          <h3 className="font-semibold text-lg text-foreground mb-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="absolute top-2 right-2 h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                            onClick={(e) => handleDeleteArticle(e, article.id, article.title)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                          <h3 className="font-semibold text-lg text-foreground mb-2 pr-10">
                             {article.title}
                           </h3>
                           <p className="text-sm text-muted-foreground line-clamp-2 mb-3">

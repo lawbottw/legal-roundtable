@@ -372,7 +372,7 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
                 <h3 className="text-lg font-semibold mb-2 text-amber-800 dark:text-amber-200">※ 網站聲明</h3>
                 <div className="text-amber-700 dark:text-amber-300">
                   <p className='text-base'>著作權由「法律圓桌」所有，非經正式書面授權，不得任意使用。</p>
-                  <p className='text-base'>文章資料內容僅供參考，所引用資料也請自行查核法令動態及現行有效之實務見解，不宜直接引用為主張或訴訟用途,具體個案仍請洽詢專業律師。</p>
+                  <p className='text-base'>文章資料內容僅供參考，所引用資料也請自行查核法令動態及現行有效之實務見解，不宜直接引用為主張或訴訟用途，具體個案仍請洽詢專業律師。</p>
                 </div>
               </div>
             </section>
