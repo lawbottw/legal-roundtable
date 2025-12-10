@@ -285,16 +285,18 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
           
           <div className="flex flex-wrap items-center gap-6 mb-6">
             <div className="flex items-center gap-3">
-              <Avatar className="w-10 h-10 border">
-                <AvatarImage src={post.author.avatar || '/logo.png'} alt={post.author.name} />
-                <AvatarFallback>{post.author.name[0]}</AvatarFallback>
-              </Avatar>
-              <div>
-                <div className="font-medium">{post.author.name}</div>
-                {post.author.title && (
-                  <div className="text-sm text-muted-foreground">{post.author.title}</div>
-                )}
-              </div>
+              <Link href={`/author/${post.author.id}`} className="flex items-center gap-3 group hover:text-primary transition-colors">
+                <Avatar className="w-10 h-10 border">
+                  <AvatarImage src={post.author.avatar || '/logo.png'} alt={post.author.name} />
+                  <AvatarFallback>{post.author.name[0]}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <span className="font-medium group-hover:text-primary">{post.author.name}</span>
+                  {post.author.title && (
+                    <div className="text-sm text-muted-foreground">{post.author.title}</div>
+                  )}
+                </div>
+              </Link>
             </div>
 
             <div className="flex items-center gap-4 text-sm text-muted-foreground">

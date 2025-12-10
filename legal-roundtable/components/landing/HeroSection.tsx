@@ -41,7 +41,7 @@ export function HeroSection() {
 							</div>
 							<div className="w-px h-16 bg-border hidden sm:block"></div>
 							<div className="text-center">
-								<div className="text-4xl md:text-5xl font-bold text-primary mb-2">8+</div>
+								<div className="text-4xl md:text-5xl font-bold text-primary mb-2">3+</div>
 								<div className="text-sm text-muted-foreground">專業作者</div>
 							</div>
 							<div className="w-px h-16 bg-border hidden sm:block"></div>
