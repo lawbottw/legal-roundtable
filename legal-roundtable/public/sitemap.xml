@@ -2,43 +2,73 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://lawtable.org</loc>
-    <lastmod>2025-12-28T02:36:48.219Z</lastmod>
+    <lastmod>2026-01-13T02:18:04.803Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>1</priority>
   </url>
   <url>
     <loc>https://lawtable.org/blog</loc>
-    <lastmod>2025-12-28T02:36:48.219Z</lastmod>
+    <lastmod>2026-01-13T02:18:04.804Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://lawtable.org/author</loc>
-    <lastmod>2025-12-28T02:36:48.219Z</lastmod>
+    <lastmod>2026-01-13T02:18:04.804Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://lawtable.org/author/Hv8zDPZulpNT1kBp6ofEVSdErYJ2</loc>
-    <lastmod>2025-12-28T02:36:48.219Z</lastmod>
+    <lastmod>2026-01-13T02:18:04.804Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://lawtable.org/author/R5osO6Amd6SteYBFmfxrwIKeWA22</loc>
-    <lastmod>2025-12-28T02:36:48.219Z</lastmod>
+    <lastmod>2026-01-13T02:18:04.804Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://lawtable.org/author/YFDFaHM1wZSXmhlLvfBDV8wQ5WN2</loc>
-    <lastmod>2025-12-28T02:36:48.219Z</lastmod>
+    <lastmod>2026-01-13T02:18:04.804Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://lawtable.org/blog/judgment-analysis/W1KSDdvwqqMjK3uiEwMf</loc>
-    <lastmod>2025-12-23T10:14:38.580Z</lastmod>
+    <loc>https://lawtable.org/blog/judgment-analysis/wLnwDcFuXgk1Nd1We7Rz</loc>
+    <lastmod>2026-01-12T04:01:46.444Z</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://lawtable.org/blog/judgment-analysis/rN1lUJem5KjLAbe4c0mv</loc>
+    <lastmod>2026-01-09T13:38:00.865Z</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://lawtable.org/blog/judgment-analysis/cjH2T2zoUpS7jiruYcV3</loc>
+    <lastmod>2026-01-09T13:37:40.598Z</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://lawtable.org/blog/judgment-analysis/L9DDaqGkChQeWLTRS7Px</loc>
+    <lastmod>2026-01-09T13:30:48.783Z</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://lawtable.org/blog/judgment-analysis/0SkIi3VVhNtrFBx85Bai</loc>
+    <lastmod>2026-01-09T09:12:29.955Z</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://lawtable.org/blog/judgment-analysis/auGUtUoJXKRw3b25SDeU</loc>
+    <lastmod>2025-12-31T08:48:25.803Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
