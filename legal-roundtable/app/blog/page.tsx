@@ -62,7 +62,6 @@ export default function BlogPage() {
     loadData();
   }, []);
 
-  // 從文章中提取不重複的作者列表
   const uniqueAuthors = Array.from(
     new Map(articles.map(article => [article.author.id, article.author])).values()
   );
@@ -85,7 +84,7 @@ export default function BlogPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
         <div className="text-center space-y-4">
           <Loader2 className="w-12 h-12 text-foreground animate-spin mx-auto" />
           <p className="text-lg text-muted-foreground font-medium">載入中...</p>
@@ -106,9 +105,9 @@ export default function BlogPage() {
               key={category}
               onClick={() => setSelectedCategory(category)}
               variant={selectedCategory === category ? "default" : "secondary"}
-              className="w-full"
+              className="w-full text-sm"
             >
-              {category}
+              <span className="break-words">{category}</span>
             </Button>
           ))}
         </div>
@@ -116,7 +115,7 @@ export default function BlogPage() {
 
       <div className="space-y-3">
         <div className="flex items-center gap-2 mb-2">
-          <User className="h-4 w-4 text-primary" />
+          <User className="h-4 w-4 text-primary flex-shrink-0" />
           <label className="text-sm font-semibold text-foreground">作者篩選</label>
         </div>
         <div className="grid grid-cols-2 gap-2">
@@ -125,9 +124,9 @@ export default function BlogPage() {
               key={author}
               onClick={() => setSelectedAuthor(author)}
               variant={selectedAuthor === author ? "default" : "secondary"}
-              className="w-full"
+              className="w-full text-sm"
             >
-              {author}
+              <span className="break-words">{author}</span>
             </Button>
           ))}
         </div>
@@ -135,7 +134,6 @@ export default function BlogPage() {
     </div>
   );
 
-  // Generate structured data for breadcrumb
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -156,7 +154,7 @@ export default function BlogPage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen w-full overflow-x-hidden">
       <Script
           id="structured-data"
           type="application/ld+json"
@@ -166,7 +164,7 @@ export default function BlogPage() {
           }}
         />
       {/* Hero Section with Gradient Overlay */}
-      <section className="relative py-24 md:py-32 overflow-hidden">
+      <section className="relative py-16 sm:py-24 md:py-32 overflow-hidden w-full">
         <div className="absolute inset-0 z-0">
           <Image
             src="/img/blog-hero.jpg"
@@ -180,10 +178,10 @@ export default function BlogPage() {
         
         <div className="container mx-auto px-4 max-w-6xl relative z-10">
           <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-lg">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight drop-shadow-lg break-words hyphens-auto">
               法律專欄
             </h1>
-            <p className="text-lg md:text-xl text-white leading-relaxed drop-shadow-md">
+            <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed drop-shadow-md break-words">
               深度法律分析,專業見解分享<br />
               由多領域法律專家為您解讀最新法律議題
             </p>
@@ -191,39 +189,39 @@ export default function BlogPage() {
         </div>
       </section>
 
-      <section className="bg-background/95 backdrop-blur-sm border-b border-border shadow-sm">
+      <section className="bg-background/95 backdrop-blur-sm border-b border-border shadow-sm w-full">
         <div className="container mx-auto px-4 max-w-6xl">
-          {/* Desktop Filter - 分類和作者在同一行 */}
+          {/* Desktop Filter */}
           <div className="hidden lg:block py-6">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex items-start justify-between gap-4">
               {/* 分類篩選 */}
-              <div className="flex items-center gap-2 flex-wrap flex-1">
+              <div className="flex items-center gap-2 flex-wrap flex-1 min-w-0">
                 {categoryOptions.map((category) => (
                   <Button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
                     variant={selectedCategory === category ? "default" : "secondary"}
                     size="sm"
+                    className="shrink-0"
                   >
-                    {category}
+                    <span className="break-words">{category}</span>
                   </Button>
                 ))}
               </div>
 
-              {/* 作者下拉選單 + 桌面上顯示數字 Badge */}
+              {/* 作者下拉選單 */}
               <div className="relative flex-shrink-0 flex items-center gap-3">
-                {/* 作者下拉原有區塊 */}
                 <div className="relative">
                   <Button
                     onClick={() => setIsAuthorDropdownOpen(!isAuthorDropdownOpen)}
                     variant={selectedAuthor !== "全部" ? "default" : "outline"}
-                    className="min-w-[140px] justify-between"
+                    className="justify-between"
                   >
-                    <span className="truncate">{selectedAuthor}</span>
-                    <ChevronDown className={`h-4 w-4 flex-shrink-0 transition-transform ${isAuthorDropdownOpen ? 'rotate-180' : ''}`} />
+                    <span className="max-w-[120px] truncate">{selectedAuthor}</span>
+                    <ChevronDown className={`h-4 w-4 flex-shrink-0 ml-2 transition-transform ${isAuthorDropdownOpen ? 'rotate-180' : ''}`} />
                   </Button>
                   {isAuthorDropdownOpen && (
-                    <div className="absolute top-full mt-2 right-0 w-64 bg-card border border-border rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
+                    <div className="absolute top-full mt-2 right-0 min-w-[200px] max-w-[280px] bg-card border border-border rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
                       {authorOptions.map((authorName) => {
                         const authorData = uniqueAuthors.find(a => a.name === authorName);
                         return (
@@ -237,20 +235,25 @@ export default function BlogPage() {
                             className="w-full justify-start h-auto py-3 px-4"
                           >
                             {authorData && authorName !== "全部" ? (
-                              <>
-                                <Avatar className="w-8 h-8 flex-shrink-0 mr-3">
+                              <div className="flex items-center gap-3 w-full min-w-0">
+                                <Avatar className="w-8 h-8 flex-shrink-0">
                                   <AvatarImage src={authorData.avatar} alt={authorName} />
                                   <AvatarFallback className="text-xs bg-muted">{authorName[0]}</AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 min-w-0 text-left">
-                                  <div className="font-medium text-sm text-foreground">{authorName}</div>
+                                  <div className="font-medium text-sm text-foreground break-words">{authorName}</div>
                                 </div>
-                              </>
+                                {selectedAuthor === authorName && (
+                                  <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />
+                                )}
+                              </div>
                             ) : (
-                              <span className="font-medium text-sm text-foreground pl-2">{authorName}</span>
-                            )}
-                            {selectedAuthor === authorName && (
-                              <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 ml-2" />
+                              <div className="flex items-center justify-between w-full">
+                                <span className="font-medium text-sm text-foreground break-words">{authorName}</span>
+                                {selectedAuthor === authorName && (
+                                  <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 ml-2" />
+                                )}
+                              </div>
                             )}
                           </Button>
                         );
@@ -259,41 +262,40 @@ export default function BlogPage() {
                   )}
                 </div>
 
-                {/* 大螢幕也顯示的數字徽章 */}
                 {activeFiltersCount > 0 && (
-                  <Badge variant="default" className="ml-2 h-6 min-w-[22px] px-2 flex items-center justify-center">
+                  <Badge variant="default" className="h-6 min-w-[22px] px-2 flex items-center justify-center flex-shrink-0">
                     {activeFiltersCount}
                   </Badge>
                 )}
               </div>
             </div>
 
-            {/* Active Filters - Desktop（與行動版相同的已啟用篩選標籤，但只在 lg 顯示） */}
+            {/* Active Filters - Desktop */}
             {activeFiltersCount > 0 && (
-              <div className="mt-3 hidden lg:flex items-center gap-2 overflow-x-auto pb-1">
+              <div className="mt-3 flex items-center gap-2 flex-wrap">
                 {selectedCategory !== "全部" && (
-                  <Badge variant="secondary" className="gap-1.5 pl-3 pr-2 py-1.5 whitespace-nowrap">
-                    <BookOpen className="h-3 w-3" />
-                    {selectedCategory}
+                  <Badge variant="secondary" className="gap-1.5 pl-3 pr-2 py-1.5 shrink-0">
+                    <BookOpen className="h-3 w-3 flex-shrink-0" />
+                    <span className="break-words">{selectedCategory}</span>
                     <Button
                       onClick={() => setSelectedCategory("全部")}
                       variant="ghost"
                       size="icon"
-                      className="ml-1 h-4 w-4 p-0 hover:bg-background/50"
+                      className="ml-1 h-4 w-4 p-0 hover:bg-background/50 flex-shrink-0"
                     >
                       <X className="h-3 w-3" />
                     </Button>
                   </Badge>
                 )}
                 {selectedAuthor !== "全部" && (
-                  <Badge variant="secondary" className="gap-1.5 pl-3 pr-2 py-1.5 whitespace-nowrap">
-                    <User className="h-3 w-3" />
-                    {selectedAuthor}
+                  <Badge variant="secondary" className="gap-1.5 pl-3 pr-2 py-1.5 shrink-0">
+                    <User className="h-3 w-3 flex-shrink-0" />
+                    <span className="break-words">{selectedAuthor}</span>
                     <Button
                       onClick={() => setSelectedAuthor("全部")}
                       variant="ghost"
                       size="icon"
-                      className="ml-1 h-4 w-4 p-0 hover:bg-background/50"
+                      className="ml-1 h-4 w-4 p-0 hover:bg-background/50 flex-shrink-0"
                     >
                       <X className="h-3 w-3" />
                     </Button>
@@ -303,16 +305,16 @@ export default function BlogPage() {
             )}
           </div>
 
-          {/* Mobile Filter - 底部抽屜 */}
+          {/* Mobile Filter */}
           <div className="lg:hidden py-4">
             <div className="flex items-center gap-3">
               <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="outline" className="flex-1 h-11 relative justify-start">
-                    <Filter className="h-4 w-4 mr-2" />
-                    <span>篩選條件</span>
+                  <Button variant="outline" className="flex-1 h-11 relative justify-start min-w-0">
+                    <Filter className="h-4 w-4 mr-2 flex-shrink-0" />
+                    <span className="truncate">篩選條件</span>
                     {activeFiltersCount > 0 && (
-                      <Badge variant="default" className="ml-auto h-5 min-w-[20px] px-1.5 flex items-center justify-center">
+                      <Badge variant="default" className="ml-auto h-5 min-w-[20px] px-1.5 flex items-center justify-center flex-shrink-0">
                         {activeFiltersCount}
                       </Badge>
                     )}
@@ -328,7 +330,7 @@ export default function BlogPage() {
                 </SheetContent>
               </Sheet>
 
-              <div className="flex items-center gap-2 px-4 py-2.5 bg-muted rounded-lg">
+              <div className="flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-muted rounded-lg flex-shrink-0">
                 <span className="text-sm font-medium text-muted-foreground">共</span>
                 <span className="text-sm font-bold text-foreground">{filteredArticles.length}</span>
                 <span className="text-sm font-medium text-muted-foreground">篇</span>
@@ -337,30 +339,30 @@ export default function BlogPage() {
 
             {/* Active Filters - Mobile */}
             {activeFiltersCount > 0 && (
-              <div className="flex items-center gap-2 mt-3 overflow-x-auto pb-1">
+              <div className="flex items-center gap-2 mt-3 flex-wrap">
                 {selectedCategory !== "全部" && (
-                  <Badge variant="secondary" className="gap-1.5 pl-3 pr-2 py-1.5 whitespace-nowrap">
-                    <BookOpen className="h-3 w-3" />
-                    {selectedCategory}
+                  <Badge variant="secondary" className="gap-1.5 pl-3 pr-2 py-1.5 shrink-0">
+                    <BookOpen className="h-3 w-3 flex-shrink-0" />
+                    <span className="break-words max-w-[120px]">{selectedCategory}</span>
                     <Button
                       onClick={() => setSelectedCategory("全部")}
                       variant="ghost"
                       size="icon"
-                      className="ml-1 h-4 w-4 p-0 hover:bg-background/50"
+                      className="ml-1 h-4 w-4 p-0 hover:bg-background/50 flex-shrink-0"
                     >
                       <X className="h-3 w-3" />
                     </Button>
                   </Badge>
                 )}
                 {selectedAuthor !== "全部" && (
-                  <Badge variant="secondary" className="gap-1.5 pl-3 pr-2 py-1.5 whitespace-nowrap">
-                    <User className="h-3 w-3" />
-                    {selectedAuthor}
+                  <Badge variant="secondary" className="gap-1.5 pl-3 pr-2 py-1.5 shrink-0">
+                    <User className="h-3 w-3 flex-shrink-0" />
+                    <span className="break-words max-w-[120px]">{selectedAuthor}</span>
                     <Button
                       onClick={() => setSelectedAuthor("全部")}
                       variant="ghost"
                       size="icon"
-                      className="ml-1 h-4 w-4 p-0 hover:bg-background/50"
+                      className="ml-1 h-4 w-4 p-0 hover:bg-background/50 flex-shrink-0"
                     >
                       <X className="h-3 w-3" />
                     </Button>
@@ -373,62 +375,62 @@ export default function BlogPage() {
       </section>
 
       {/* Articles Section */}
-      <section className="py-16 bg-muted/30">
+      <section className="py-12 sm:py-16 bg-muted/30 w-full">
         <div className="container mx-auto px-4 max-w-6xl">
           {/* Featured Articles */}
           {featuredArticlesList.length > 0 && (
             <div className="mb-12">
               <div className="flex items-center mb-6">
-                <Star className="h-5 w-5 text-primary mr-2 fill-primary" />
-                <h2 className="text-2xl font-bold text-foreground mb-0">精選文章</h2>
+                <Star className="h-5 w-5 text-primary mr-2 fill-primary flex-shrink-0" />
+                <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-0 break-words">精選文章</h2>
               </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                 {featuredArticlesList.map((article) => {
                   const categorySlug = encodeURIComponent(String(article.category));
                   return (
-                    <Link key={article.id} href={`/blog/${categorySlug}/${article.id}`}>
-                    <article className="group cursor-pointer bg-card border border-border rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 hover:border-primary/50">
-                      <div className="aspect-[16/9] overflow-hidden bg-muted">
-                        <Image
-                          src={article.image || DEFAULT_IMAGE}
-                          alt={article.title}
-                          width={800}
-                          height={450}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      </div>
-                      <div className="p-6">
-                        <div className="flex items-center flex-wrap gap-2 text-xs text-muted-foreground mb-3">
-                          <Badge variant="secondary">
-                            {categories[article.category as CategoryKey]?.name || article.category}
-                          </Badge>
-                          <span className="flex items-center">
-                            <Calendar className="h-3 w-3 mr-1" />
-                            {new Date(article.updatedAt.seconds * 1000).toLocaleDateString('zh-TW')}
-                          </span>
-                          <span>{article.readTime || 5} 分鐘閱讀</span>
+                    <Link key={article.id} href={`/blog/${categorySlug}/${article.id}`} className="block w-full min-w-0">
+                      <article className="group cursor-pointer bg-card border border-border rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 hover:border-primary/50 h-full flex flex-col">
+                        <div className="aspect-[16/9] overflow-hidden bg-muted relative w-full flex-shrink-0">
+                          <Image
+                            src={article.image || DEFAULT_IMAGE}
+                            alt={article.title}
+                            fill
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
                         </div>
-                        <h3 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors leading-tight">
-                          {article.title}
-                        </h3>
-                        <p className="text-muted-foreground mb-4 leading-relaxed line-clamp-2">
-                          {article.excerpt}
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            <Avatar className="w-5 h-5">
-                              <AvatarImage src={article.author.avatar} alt={article.author.name} />
-                              <AvatarFallback className="text-xs bg-muted">{article.author.name[0]}</AvatarFallback>
-                            </Avatar>
-                            <span className="text-sm text-muted-foreground">{article.author.name}</span>
+                        <div className="p-4 sm:p-5 lg:p-6 flex-1 flex flex-col min-w-0">
+                          <div className="flex items-center flex-wrap gap-2 text-xs text-muted-foreground mb-3">
+                            <Badge variant="secondary" className="shrink-0">
+                              <span className="break-words">{categories[article.category as CategoryKey]?.name || article.category}</span>
+                            </Badge>
+                            <span className="flex items-center shrink-0">
+                              <Calendar className="h-3 w-3 mr-1 flex-shrink-0" />
+                              <span className="break-words">{new Date(article.updatedAt.seconds * 1000).toLocaleDateString('zh-TW')}</span>
+                            </span>
+                            <span className="shrink-0">{article.readTime || 5} 分鐘閱讀</span>
                           </div>
-                          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                            <span>{article.views || 0} 次閱讀</span>
-                            <ArrowRight className="h-4 w-4 text-primary group-hover:translate-x-1 transition-transform" />
+                          <h3 className="text-base sm:text-lg lg:text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors leading-tight break-words hyphens-auto overflow-wrap-anywhere">
+                            {article.title}
+                          </h3>
+                          <p className="text-sm sm:text-base text-muted-foreground mb-4 leading-relaxed line-clamp-2 break-words flex-1 overflow-wrap-anywhere">
+                            {article.excerpt}
+                          </p>
+                          <div className="flex items-center justify-between gap-2 mt-auto min-w-0">
+                            <div className="flex items-center space-x-2 min-w-0 flex-1">
+                              <Avatar className="w-5 h-5 flex-shrink-0">
+                                <AvatarImage src={article.author.avatar} alt={article.author.name} />
+                                <AvatarFallback className="text-xs bg-muted">{article.author.name[0]}</AvatarFallback>
+                              </Avatar>
+                              <span className="text-xs sm:text-sm text-muted-foreground truncate min-w-0">{article.author.name}</span>
+                            </div>
+                            <div className="flex items-center space-x-2 sm:space-x-4 text-xs sm:text-sm text-muted-foreground flex-shrink-0">
+                              <span className="shrink-0">{article.views || 0} 次</span>
+                              <ArrowRight className="h-4 w-4 text-primary group-hover:translate-x-1 transition-transform flex-shrink-0" />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </article>
+                      </article>
                     </Link>
                   );
                 })}
@@ -439,58 +441,58 @@ export default function BlogPage() {
           {/* Regular Articles */}
           {regularArticles.length > 0 && (
             <div>
-              <h2 className="text-2xl font-bold text-foreground mb-6">最新文章</h2>
-              <div className="grid gap-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-6 break-words">最新文章</h2>
+              <div className="grid gap-4 sm:gap-6">
                 {regularArticles.map((article) => {
                   const categorySlug = encodeURIComponent(String(article.category));
                   return (
-                    <Link key={article.id} href={`/blog/${categorySlug}/${article.id}`}>
-                    <article className="group cursor-pointer bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:border-primary/50">
-                      <div className="flex flex-col md:flex-row gap-6">
-                        <div className="md:w-48 flex-shrink-0">
-                          <div className="aspect-[4/3] overflow-hidden rounded-lg bg-muted">
-                            <Image
-                              src={article.image || DEFAULT_IMAGE}
-                              alt={article.title}
-                              width={192}
-                              height={144}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
-                          </div>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center flex-wrap gap-2 text-xs text-muted-foreground mb-3">
-                            <Badge variant="secondary">
-                              {categories[article.category as CategoryKey]?.name || article.category}
-                            </Badge>
-                            <span className="flex items-center">
-                              <Calendar className="h-3 w-3 mr-1" />
-                              {new Date(article.updatedAt.seconds * 1000).toLocaleDateString('zh-TW')}
-                            </span>
-                            <span>{article.readTime || 5} 分鐘閱讀</span>
-                          </div>
-                          <h3 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors">
-                            {article.title}
-                          </h3>
-                          <p className="text-muted-foreground mb-4 leading-relaxed line-clamp-2">
-                            {article.excerpt}
-                          </p>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                              <Avatar className="w-5 h-5">
-                                <AvatarImage src={article.author.avatar} alt={article.author.name} />
-                                <AvatarFallback className="text-xs bg-muted">{article.author.name[0]}</AvatarFallback>
-                              </Avatar>
-                              <span className="text-sm text-muted-foreground">{article.author.name}</span>
-                            </div>
-                            <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                              <span>{article.views || 0} 次閱讀</span>
-                              <ArrowRight className="h-4 w-4 text-primary group-hover:translate-x-1 transition-transform" />
+                    <Link key={article.id} href={`/blog/${categorySlug}/${article.id}`} className="block w-full min-w-0">
+                      <article className="group cursor-pointer bg-card border border-border rounded-xl p-4 sm:p-5 lg:p-6 hover:shadow-lg transition-all duration-300 hover:border-primary/50 w-full min-w-0">
+                        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 min-w-0">
+                          <div className="w-full sm:w-40 md:w-48 flex-shrink-0">
+                            <div className="aspect-[4/3] overflow-hidden rounded-lg bg-muted relative w-full">
+                              <Image
+                                src={article.image || DEFAULT_IMAGE}
+                                alt={article.title}
+                                fill
+                                sizes="(max-width: 640px) 100vw, 192px"
+                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                              />
                             </div>
                           </div>
+                          <div className="flex-1 min-w-0 flex flex-col">
+                            <div className="flex items-center flex-wrap gap-2 text-xs text-muted-foreground mb-3">
+                              <Badge variant="secondary" className="shrink-0">
+                                <span className="break-words">{categories[article.category as CategoryKey]?.name || article.category}</span>
+                              </Badge>
+                              <span className="flex items-center shrink-0">
+                                <Calendar className="h-3 w-3 mr-1 flex-shrink-0" />
+                                <span className="break-words">{new Date(article.updatedAt.seconds * 1000).toLocaleDateString('zh-TW')}</span>
+                              </span>
+                              <span className="shrink-0">{article.readTime || 5} 分鐘閱讀</span>
+                            </div>
+                            <h3 className="text-base sm:text-lg lg:text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors break-words hyphens-auto overflow-wrap-anywhere">
+                              {article.title}
+                            </h3>
+                            <p className="text-sm sm:text-base text-muted-foreground mb-4 leading-relaxed line-clamp-2 break-words flex-1 overflow-wrap-anywhere">
+                              {article.excerpt}
+                            </p>
+                            <div className="flex items-center justify-between gap-2 mt-auto min-w-0">
+                              <div className="flex items-center space-x-2 min-w-0 flex-1">
+                                <Avatar className="w-5 h-5 flex-shrink-0">
+                                  <AvatarImage src={article.author.avatar} alt={article.author.name} />
+                                  <AvatarFallback className="text-xs bg-muted">{article.author.name[0]}</AvatarFallback>
+                                </Avatar>
+                                <span className="text-xs sm:text-sm text-muted-foreground truncate min-w-0">{article.author.name}</span>
+                              </div>
+                              <div className="flex items-center space-x-2 sm:space-x-4 text-xs sm:text-sm text-muted-foreground flex-shrink-0">
+                                <span className="shrink-0">{article.views || 0} 次</span>
+                                <ArrowRight className="h-4 w-4 text-primary group-hover:translate-x-1 transition-transform flex-shrink-0" />
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </article>
+                      </article>
                     </Link>
                   );
                 })}
@@ -500,10 +502,10 @@ export default function BlogPage() {
 
           {/* No Results */}
           {filteredArticles.length === 0 && (
-            <div className="text-center py-12 bg-card border border-border rounded-xl">
+            <div className="text-center py-12 bg-card border border-border rounded-xl px-4">
               <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-foreground mb-2">找不到相關文章</h3>
-              <p className="text-muted-foreground mb-4">請嘗試調整篩選條件</p>
+              <h3 className="text-lg font-medium text-foreground mb-2 break-words">找不到相關文章</h3>
+              <p className="text-muted-foreground mb-4 break-words">請嘗試調整篩選條件</p>
               <Button 
                 variant="outline" 
                 onClick={() => {
