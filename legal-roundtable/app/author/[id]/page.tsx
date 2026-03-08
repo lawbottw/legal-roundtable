@@ -207,15 +207,15 @@ export default function AuthorDetailPage() {
                   {articles.map((article) => (
                     <div
                       key={article.id}
-                      className="rounded-xl bg-card/50 backdrop-blur-sm p-6 cursor-pointer hover:bg-card/70 transition-all duration-300 group border-b border-border"
+                      className="rounded-xl bg-card/50 backdrop-blur-sm p-6 cursor-pointer hover:bg-card/70 transition-all duration-300 group border-b border-border overflow-hidden"
                       onClick={() => router.push(`/blog/${article.category}/${article.id}`)}
                     >
                       <div className="flex items-start justify-between gap-4 mb-4">
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                           <h3 className="mb-2 group-hover:text-primary transition-colors line-clamp-2">
                             {article.title}
                           </h3>
-                          <p className="line-clamp-2">
+                          <p className="line-clamp-3 break-all">
                             {article.excerpt}
                           </p>
                         </div>
